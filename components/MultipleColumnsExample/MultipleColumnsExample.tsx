@@ -34,7 +34,10 @@ function MultipleColumnsExample() {
             return null;
 
         // Set start and end variables
+
+        //@ts-ignore
         const start = columns[source.droppableId];
+        //@ts-ignore
         const end = columns[destination.droppableId];
 
         // If start is the same as end, we're in the same column
