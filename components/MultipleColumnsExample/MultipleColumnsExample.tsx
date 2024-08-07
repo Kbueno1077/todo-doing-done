@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Column from "../Column/Column";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { mockTickets } from "@/mock/mockTickets";
+import { IconPlus } from "@tabler/icons-react";
+import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 
 function MultipleColumnsExample() {
     const initialColumns = {
@@ -102,16 +104,25 @@ function MultipleColumnsExample() {
                     display: "grid",
                     overflow: "auto",
                     gridTemplateColumns:
-                        "repeat(auto-fill, minmax(100px, 250px))",
+                        "repeat(auto-fill, minmax(100px, 350px))",
                     width: "100%",
                     gap: "8px",
-                    padding: "12px 20px 12px",
                     flexGrow: 1,
                 }}
             >
                 {Object.values(columns).map((col) => (
-                    <Column col={col} key={col.id} />
+                    //@ts-ignore
+                    <Column id={col.id} list={col.list} key={col.id} />
                 ))}
+
+                <div>
+                    <IpadCursorBlockWrapper>
+                        <button className="btn rounded-md flex-grow-0 w-full">
+                            Create Column
+                            <IconPlus size={20} />
+                        </button>
+                    </IpadCursorBlockWrapper>
+                </div>
             </div>
         </DragDropContext>
     );

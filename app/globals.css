@@ -8,6 +8,7 @@
         --btn-background: 200 10% 91%;
         --btn-background-hover: 200 10% 89%;
         --foreground: 200 50% 3%;
+        --white: 255, 255, 255;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -18,14 +19,6 @@
             --foreground: 200 20% 96%;
         }
     }
-}
-
-.list-item {
-    padding: 10px;
-    border: 1px solid #888;
-    margin-bottom: 10px;
-    background: #eee;
-    color: red;
 }
 
 @layer base {

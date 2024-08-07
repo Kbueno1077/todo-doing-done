@@ -1,6 +1,18 @@
-export type Ticket = {
+export interface Ticket {
     id: string;
     title: string;
     description: string;
-    footer: any;
-};
+    assignedTo: AssignedTo[] | never[];
+    priority?: number;
+    footer?: {};
+}
+
+export interface AssignedTo {
+    id: string;
+    name: string;
+}
+
+export interface TicketList {
+    id: string;
+    list: Ticket[] | never[];
+}

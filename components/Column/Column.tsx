@@ -3,23 +3,25 @@ import { Droppable } from "react-beautiful-dnd";
 import IpadItem from "../Item/IpadItem";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 import { Ticket } from "@/utils/types";
+import { IconPlus } from "@tabler/icons-react";
+import AddTicket from "@/modules/AddTicket/AddTicket";
 
 interface ColumnProps {
-    col: {
-        id: string;
-        list: Ticket[];
-    };
+    id: string;
+    list: Ticket[] | never[];
 }
-const Column: React.FC<ColumnProps> = ({ col: { list, id } }) => {
+const Column: React.FC<ColumnProps> = ({ id, list }) => {
     return (
         <Droppable droppableId={id}>
             {(provided) => (
                 <div className="flex flex-col">
-                    <IpadCursorBlockWrapper type="text">
-                        <h2 className="bg-primary rounded-md px-1 py-2 uppercase font-bold">
-                            {id}
-                        </h2>
-                    </IpadCursorBlockWrapper>
+                    <div className="flex justify-between items-center bg-primary rounded-md px-2 py-2 ">
+                        <IpadCursorBlockWrapper type="text">
+                            <h2 className="uppercase font-bold">{id}</h2>
+                        </IpadCursorBlockWrapper>
+
+                        <AddTicket addTo={id} />
+                    </div>
 
                     <div
                         className="bg-primary/10 rounded-md p-4 flex flex-col flex-grow mt-2"
