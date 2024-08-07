@@ -10,6 +10,7 @@ export interface Ticket {
 export interface AssignedTo {
     id: string;
     name: string;
+    img?: string;
 }
 
 export interface TicketList {
