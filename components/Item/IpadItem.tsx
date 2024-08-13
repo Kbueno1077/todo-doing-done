@@ -23,9 +23,16 @@ import {
 interface IpadItemProps {
     ticket: Ticket;
     index: number;
+    onClick?: () => void;
 }
 
-const IpadItem: React.FC<IpadItemProps> = ({ ticket, index }) => {
+const IpadItem: React.FC<IpadItemProps> = ({
+    ticket,
+    index,
+    onClick = () => {},
+}) => {
+    const users = ticket.AssignedToTickets?.map((assigned) => assigned.Users);
+
     return (
         <Draggable draggableId={ticket.id} index={index}>
             {(provided) => (
@@ -39,6 +46,7 @@ const IpadItem: React.FC<IpadItemProps> = ({ ticket, index }) => {
                             className="w-full bg-primary/20 rounded-md py-4 px-2 flex flex-col mt-2"
                             onClick={() => {
                                 console.log(`Clicked item: ${ticket.id}`);
+                                onClick();
                             }}
                         >
                             <div>
@@ -57,9 +65,7 @@ const IpadItem: React.FC<IpadItemProps> = ({ ticket, index }) => {
 
                             <div className="flex justify-between items-center">
                                 {renderPriorityIcon(ticket.priority || 0)}{" "}
-                                <GroupedAvatars
-                                    assignedTo={ticket.assignedTo}
-                                />
+                                <GroupedAvatars assignedTo={users || []} />
                             </div>
                         </div>
                     </IpadCursorBlockWrapper>

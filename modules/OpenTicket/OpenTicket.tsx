@@ -1,31 +1,43 @@
 "use client";
 
-import Avatar from "@/components/Avatar/Avatar";
-import GroupedAvatars from "@/components/Avatar/GroupedAvatars";
 import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
-import { mockUsers } from "@/mock/mockTickets";
-import { User } from "@/utils/types";
+import IpadItem from "@/components/Item/IpadItem";
+import { Comment, Ticket, User } from "@/utils/types";
+import { format } from "@formkit/tempo";
 import {
-    IconPlus,
-    IconStackPush,
-    IconH1,
     IconArticle,
+    IconH1,
+    IconMessage,
+    IconStackPush,
 } from "@tabler/icons-react";
 
+import Avatar from "@/components/Avatar/Avatar";
+import GroupedAvatars from "@/components/Avatar/GroupedAvatars";
+import { mockUsers } from "@/mock/mockTickets";
+import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
 
 interface AddTicketProps {
-    addTo: string;
+    ticket: Ticket;
+    index: number;
 }
 
-function AddTicket({ addTo }: AddTicketProps) {
+function OpenTicket({ ticket, index }: AddTicketProps) {
+    const [isLoading, setIsLoading] = useState(true);
+    console.log("🚀 ~ OpenTicket ~ isLoading:", isLoading);
     const [isOpen, setIsOpen] = useState(false);
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
 
-    const [priority, setPriority] = useState(0);
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+    const [title, setTitle] = useState(ticket.title || "");
+    const [description, setDescription] = useState(ticket.description || "");
+    const [priority, setPriority] = useState(ticket.priority || 0);
+
+    const [comment, setComment] = useState("");
+    const [comments, setComments] = useState<Comment[] | []>([]);
+
+    const [selectedUsers, setSelectedUsers] = useState<User[]>(
+        ticket.AssignedToTickets?.map((assigned) => assigned.Users) || []
+    );
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -51,44 +63,56 @@ function AddTicket({ addTo }: AddTicketProps) {
         });
     };
 
-    function openModal() {
+    async function openModal() {
+        setIsLoading(true);
+
+        const supabase = createClient();
+        const { data } = await supabase
+            .from("Tickets")
+            .select("Comments(*, Users(*))")
+            .eq("id", ticket.id);
+
+        console.log("🚀 ~ openModal ~ data:", data);
+
+        if (data && data[0]) {
+            setComments(data[0].Comments || []);
+        }
+
+        setIsLoading(false);
         setIsOpen(true);
     }
 
     function closeModal() {
-        setPriority(0);
-        setTitle("");
-        setDescription("");
-        setSelectedUsers([]);
+        setDescription(ticket.description || "");
+        setTitle(ticket.title || "");
+        setPriority(ticket.priority || 0);
+        setSelectedUsers(
+            ticket.AssignedToTickets?.map((assigned) => assigned.Users) || []
+        );
+        setComment("");
+        setComments([]);
         setIsOpen(false);
     }
 
     return (
         <>
-            <IpadCursorBlockWrapper>
-                <button
-                    onClick={openModal}
-                    className="btn btn-square rounded-md btn-sm"
-                >
-                    <IconPlus size={20} />
-                </button>
-            </IpadCursorBlockWrapper>
+            <IpadItem onClick={openModal} ticket={ticket} index={index} />
 
             {isOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-80 z-[9999]">
                     <div className="flex h-full justify-center items-center text-foreground">
                         <div className="w-3/4 max-w-[1280px] bg-background rounded-md p-8 flex flex-col mt-2">
                             <IpadCursorBlockWrapper type="text">
-                                <div className="flex gap-4 items-center py-4">
+                                <div className="flex gap-4 items-center">
                                     <IconStackPush size={30} />
                                     <h1 className="font-bold text-2xl">
-                                        New Ticket
+                                        {ticket.title}
                                     </h1>
                                 </div>
                             </IpadCursorBlockWrapper>
 
                             <div className="flex flex-col gap-4 py-4">
-                                <div className="flex gap-4">
+                                <div className="flex gap-4 py-4">
                                     <IconH1 size={30} />
 
                                     <IpadCursorBlockWrapper
@@ -216,24 +240,111 @@ function AddTicket({ addTo }: AddTicketProps) {
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 w-full justify-end mt-4">
-                                <IpadCursorBlockWrapper>
-                                    <button
-                                        className="btn"
-                                        onClick={closeModal}
-                                    >
-                                        Cancel
-                                    </button>
-                                </IpadCursorBlockWrapper>
+                            <div className="mt-2">
+                                <h3 className="text-lg my-2 ">Comments</h3>
 
-                                <IpadCursorBlockWrapper>
-                                    <button
-                                        className="btn btn-success"
-                                        onClick={closeModal}
+                                {isLoading && (
+                                    <>
+                                        <div className="skeleton h-60 w-full mb-5"></div>
+                                    </>
+                                )}
+
+                                {comments?.map((comment, index) => (
+                                    <div
+                                        key={comment.id}
+                                        className={`flex gap-4 items-center py-4 ${
+                                            comments.length - 1 === index
+                                                ? "justify-end"
+                                                : ""
+                                        }`}
                                     >
-                                        Create
-                                    </button>
+                                        <div className="avatar">
+                                            <div className="w-8 rounded">
+                                                <img
+                                                    src={
+                                                        comment.Users.img ||
+                                                        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col">
+                                            <div>
+                                                <p className="text-sm">
+                                                    {comment.Users.name} {"   "}
+                                                    -{"   "}
+                                                    {format(comment.updatedAt, {
+                                                        date: "full",
+                                                        time: "short",
+                                                    })}
+                                                </p>
+                                            </div>
+                                            <p className="text-sm">
+                                                {comment.content}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="flex gap-4 mt-2">
+                                <IconMessage size={30} />
+
+                                <IpadCursorBlockWrapper
+                                    type="text"
+                                    className="w-full"
+                                >
+                                    <textarea
+                                        rows={5}
+                                        className="textarea textarea-bordered w-full text-foreground text-lg"
+                                        placeholder="Add comment"
+                                        disabled={isLoading}
+                                        value={comment}
+                                        onChange={(e) =>
+                                            handleInputChange(e, setComment)
+                                        }
+                                    ></textarea>
                                 </IpadCursorBlockWrapper>
+                            </div>
+
+                            <div className="flex gap-2 w-full items-center justify-between mt-6">
+                                <div>
+                                    <p className="text-xs font-bold italic">
+                                        <span className="">Created at: </span>
+                                        {format(ticket.createdAt, {
+                                            date: "full",
+                                            time: "short",
+                                        })}
+                                    </p>
+                                    <p className="text-xs font-bold italic">
+                                        <span className="">Updated at: </span>
+                                        {format(ticket.updatedAt, {
+                                            date: "full",
+                                            time: "short",
+                                        })}
+                                    </p>
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <IpadCursorBlockWrapper>
+                                        <button
+                                            className="btn"
+                                            onClick={closeModal}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </IpadCursorBlockWrapper>
+
+                                    <IpadCursorBlockWrapper>
+                                        <button
+                                            className="btn btn-success"
+                                            onClick={closeModal}
+                                        >
+                                            Save
+                                        </button>
+                                    </IpadCursorBlockWrapper>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -243,4 +354,4 @@ function AddTicket({ addTo }: AddTicketProps) {
     );
 }
 
-export default AddTicket;
+export default OpenTicket;

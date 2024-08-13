@@ -1,18 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
-import Column from "../Column/Column";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import { mockTickets } from "@/mock/mockTickets";
+import { createClient } from "@/utils/supabase/client";
+import { groupByStatus } from "@/utils/utils";
 import { IconPlus } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import Column from "../Column/Column";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 
 function MultipleColumnsExample() {
     const initialColumns = {
-        todo: {
-            id: "todo",
-            list: mockTickets,
-        },
+        Todo: { id: "Todo", list: [] },
         doing: {
             id: "doing",
             list: [],
@@ -23,6 +21,25 @@ function MultipleColumnsExample() {
         },
     };
     const [columns, setColumns] = useState(initialColumns);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        const supabase = createClient();
+        const { data } = await supabase
+            .from("Tickets")
+            .select("*, AssignedToTickets(*, Users(*))");
+
+        const groupedData = groupByStatus(data);
+        console.log("🚀 ~ fetchData ~ groupedData:", groupedData);
+
+        setColumns({ ...initialColumns, ...groupedData });
+        setIsLoading(false);
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const onDragEnd = ({ source, destination }: DropResult) => {
         // Make sure we have a valid destination
@@ -110,19 +127,30 @@ function MultipleColumnsExample() {
                     flexGrow: 1,
                 }}
             >
-                {Object.values(columns).map((col) => (
-                    //@ts-ignore
-                    <Column id={col.id} list={col.list} key={col.id} />
-                ))}
+                {isLoading ? (
+                    <>
+                        {Object.values(columns).map((col) => (
+                            //@ts-ignore
+                            <div className="skeleton h-full w-full"></div>
+                        ))}
+                    </>
+                ) : (
+                    Object.values(columns).map((col) => (
+                        //@ts-ignore
+                        <Column id={col.id} list={col.list} key={col.id} />
+                    ))
+                )}
 
-                <div>
-                    <IpadCursorBlockWrapper>
-                        <button className="btn rounded-md flex-grow-0 w-full">
-                            Create Column
-                            <IconPlus size={20} />
-                        </button>
-                    </IpadCursorBlockWrapper>
-                </div>
+                {!isLoading && (
+                    <div>
+                        <IpadCursorBlockWrapper>
+                            <button className="btn rounded-md flex-grow-0 w-full">
+                                Create Column
+                                <IconPlus size={20} />
+                            </button>
+                        </IpadCursorBlockWrapper>
+                    </div>
+                )}
             </div>
         </DragDropContext>
     );

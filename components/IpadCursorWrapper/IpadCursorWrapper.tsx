@@ -8,11 +8,13 @@ function IpadCursorBlockWrapper({
     children,
     type = "block",
     styles = {},
+    className = "",
     ...props
 }: {
     children: React.ReactNode;
     type?: "block" | "text";
     styles?: Record<string, string>;
+    className?: string;
     props?: React.HTMLAttributes<HTMLDivElement>;
 }) {
     const config: IpadCursorConfig = {};
@@ -32,7 +34,7 @@ function IpadCursorBlockWrapper({
             <div
                 data-cursor={type}
                 data-cursor-style={style}
-                className="[&_*]:cursor-none"
+                className={`[&_*]:cursor-none ${className}`}
                 {...props}
             >
                 {children}

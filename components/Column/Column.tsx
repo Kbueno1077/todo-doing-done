@@ -1,10 +1,9 @@
+import AddTicket from "@/modules/AddTicket/AddTicket";
+import OpenTicket from "@/modules/OpenTicket/OpenTicket";
+import { Ticket } from "@/utils/types";
 import React from "react";
 import { Droppable } from "react-beautiful-dnd";
-import IpadItem from "../Item/IpadItem";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
-import { Ticket } from "@/utils/types";
-import { IconPlus } from "@tabler/icons-react";
-import AddTicket from "@/modules/AddTicket/AddTicket";
 
 interface ColumnProps {
     id: string;
@@ -29,7 +28,7 @@ const Column: React.FC<ColumnProps> = ({ id, list }) => {
                         ref={provided.innerRef}
                     >
                         {list.map((ticket, index) => (
-                            <IpadItem
+                            <OpenTicket
                                 key={ticket.id}
                                 ticket={ticket}
                                 index={index}
