@@ -17,14 +17,20 @@ export const mockTickets = [
                 content: "This is a comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" },
+                author: {
+                    id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5",
+                    name: "John Doe",
+                },
             },
             {
                 id: "2",
                 content: "This is another comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" },
+                author: {
+                    id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5",
+                    name: "John Doe",
+                },
             },
 
             {
@@ -32,8 +38,10 @@ export const mockTickets = [
                 content: "This is another comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "f70e24e7-438b-42ae-8458-14e8e058dd9a", name: "Kevin Bueno" },
-                isMine: true,
+                author: {
+                    id: "f70e24e7-438b-42ae-8458-14e8e058dd9a",
+                    name: "Kevin Bueno",
+                },
             },
         ],
     },
@@ -52,7 +60,9 @@ export const mockTickets = [
         title: "Create mobile-responsive design for checkout page",
         description:
             "The checkout page needs to be redesigned to work seamlessly on mobile devices. Implement a responsive layout that adapts to different screen sizes.",
-        assignedTo: [{ id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" }],
+        assignedTo: [
+            { id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" },
+        ],
         priority: 1,
         comments: [
             {
@@ -60,14 +70,20 @@ export const mockTickets = [
                 content: "This is a comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" },
+                author: {
+                    id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5",
+                    name: "John Doe",
+                },
             },
             {
                 id: "2",
                 content: "This is another comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" },
+                author: {
+                    id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5",
+                    name: "John Doe",
+                },
             },
 
             {
@@ -75,8 +91,10 @@ export const mockTickets = [
                 content: "This is another comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "f70e24e7-438b-42ae-8458-14e8e058dd9a", name: "Kevin Bueno" },
-                isMine: true,
+                author: {
+                    id: "f70e24e7-438b-42ae-8458-14e8e058dd9a",
+                    name: "Kevin Bueno",
+                },
             },
         ],
     },
@@ -100,14 +118,20 @@ export const mockTickets = [
                 content: "This is a comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" },
+                author: {
+                    id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5",
+                    name: "John Doe",
+                },
             },
             {
                 id: "2",
                 content: "This is another comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" },
+                author: {
+                    id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5",
+                    name: "John Doe",
+                },
             },
 
             {
@@ -115,8 +139,10 @@ export const mockTickets = [
                 content: "This is another comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "f70e24e7-438b-42ae-8458-14e8e058dd9a", name: "Kevin Bueno" },
-                isMine: true,
+                author: {
+                    id: "f70e24e7-438b-42ae-8458-14e8e058dd9a",
+                    name: "Kevin Bueno",
+                },
             },
         ],
     },
@@ -128,21 +154,29 @@ export const mockTickets = [
         description:
             "Enhance account security by implementing a two-factor authentication system using SMS or authenticator apps.",
         priority: 0,
-        assignedTo: [{ id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" }],
+        assignedTo: [
+            { id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" },
+        ],
         comments: [
             {
                 id: "1",
                 content: "This is a comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" },
+                author: {
+                    id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5",
+                    name: "John Doe",
+                },
             },
             {
                 id: "2",
                 content: "This is another comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5", name: "John Doe" },
+                author: {
+                    id: "91de3176-ae5a-492d-a6d5-bfeb328e4bd5",
+                    name: "John Doe",
+                },
             },
 
             {
@@ -150,8 +184,10 @@ export const mockTickets = [
                 content: "This is another comment",
                 createdAt: "2023-03-01T00:00:00.000Z",
                 updatedAt: "2023-03-01T00:00:00.000Z",
-                author: { id: "f70e24e7-438b-42ae-8458-14e8e058dd9a", name: "Kevin Bueno" },
-                isMine: true,
+                author: {
+                    id: "f70e24e7-438b-42ae-8458-14e8e058dd9a",
+                    name: "Kevin Bueno",
+                },
             },
         ],
     },

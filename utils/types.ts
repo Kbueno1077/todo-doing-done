@@ -5,8 +5,8 @@ export interface Ticket {
     AssignedToTickets?: AssignedToTickets[] | never[];
     priority?: number;
     Comments?: Comment[] | never[];
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface Comment {
@@ -19,14 +19,13 @@ export interface Comment {
     ticket_id: string;
 }
 
-
 export interface AssignedToTickets {
     id: string;
     createdAt: string;
     updatedAt: string;
     ticket_id: string;
     user_id: string;
-    Users: User
+    Users: User;
 }
 
 export interface User {
@@ -42,13 +41,12 @@ export interface TicketList {
     list: Ticket[] | never[];
 }
 
-
 export interface Item {
     status: string;
-    [key: string]: any;  // Allow other properties
-  }
-  
-  export interface GroupedItem {
+    [key: string]: any; // Allow other properties
+}
+
+export interface GroupedItem {
     id: string;
     list: Item[];
-  }
+}

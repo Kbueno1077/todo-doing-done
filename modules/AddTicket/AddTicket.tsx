@@ -3,22 +3,22 @@
 import Avatar from "@/components/Avatar/Avatar";
 import GroupedAvatars from "@/components/Avatar/GroupedAvatars";
 import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
-import { mockUsers } from "@/mock/mockTickets";
+import { useStoreContext } from "@/store/useStoreContext";
 import { User } from "@/utils/types";
 import {
+    IconArticle,
+    IconH1,
     IconPlus,
     IconStackPush,
-    IconH1,
-    IconArticle,
 } from "@tabler/icons-react";
 
 import { useState } from "react";
 
 interface AddTicketProps {
-    addTo: string;
+    status: string;
 }
 
-function AddTicket({ addTo }: AddTicketProps) {
+function AddTicket({ status }: AddTicketProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
 
@@ -26,6 +26,19 @@ function AddTicket({ addTo }: AddTicketProps) {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+
+    const { createTicket, selectedBoardId } = useStoreContext((s) => {
+        return {
+            createTicket: s.createTicket,
+            selectedBoardId: s.selectedBoardId,
+        };
+    });
+
+    const { users } = useStoreContext((s) => {
+        return {
+            users: s.users,
+        };
+    });
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -62,6 +75,19 @@ function AddTicket({ addTo }: AddTicketProps) {
         setSelectedUsers([]);
         setIsOpen(false);
     }
+
+    const handleSubmit = async () => {
+        const ticket = {
+            title: title,
+            description: description,
+            priority: priority,
+            status,
+            board_id: selectedBoardId,
+        };
+
+        await createTicket(ticket, selectedUsers);
+        closeModal();
+    };
 
     return (
         <>
@@ -181,7 +207,7 @@ function AddTicket({ addTo }: AddTicketProps) {
 
                                     {isDropDownOpen && (
                                         <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                                            {mockUsers.map((user) => (
+                                            {users.map((user) => (
                                                 <li key={user.id}>
                                                     <IpadCursorBlockWrapper>
                                                         <label className="flex items-center space-x-2 ">
@@ -229,7 +255,7 @@ function AddTicket({ addTo }: AddTicketProps) {
                                 <IpadCursorBlockWrapper>
                                     <button
                                         className="btn btn-success"
-                                        onClick={closeModal}
+                                        onClick={handleSubmit}
                                     >
                                         Create
                                     </button>

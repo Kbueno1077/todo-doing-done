@@ -1,7 +1,27 @@
+"use client";
 import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
-import React from "react";
+import { useStoreContext } from "@/store/useStoreContext";
+import React, { useState } from "react";
 
 function Navbar() {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const { selectedBoardId, boards, loadTicketsFromBoard } = useStoreContext(
+        (s) => {
+            return {
+                selectedBoardId: s.selectedBoardId,
+                boards: s.boards,
+                loadTicketsFromBoard: s.loadTicketsFromBoard,
+            };
+        }
+    );
+
+    const changeBoard = async (boardId: string) => {
+        setIsLoading(true);
+        await loadTicketsFromBoard(boardId);
+        setIsLoading(false);
+    };
+
     return (
         <div className="navbar bg-base-100">
             <div className="navbar-start">
@@ -50,10 +70,35 @@ function Navbar() {
                     </ul>
                 </div>
 
-                <div className="navbar-center cursor-none">
-                    <IpadCursorBlockWrapper type="text">
-                        <span className="btn cursor-none text-xl">Board</span>
+                <div className="dropdown navbar-center cursor-none">
+                    <IpadCursorBlockWrapper>
+                        <div
+                            tabIndex={0}
+                            role="button"
+                            className="btn btn-ghost  cursor-none text-xl"
+                        >
+                            {selectedBoardId && !isLoading
+                                ? boards.find((b) => b.id === selectedBoardId)
+                                      ?.name
+                                : "Loading..."}
+                        </div>
                     </IpadCursorBlockWrapper>
+                    <ul
+                        tabIndex={0}
+                        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+                    >
+                        {boards?.map((board) => (
+                            <IpadCursorBlockWrapper key={board.id}>
+                                <li
+                                    onClick={() => {
+                                        changeBoard(board.id);
+                                    }}
+                                >
+                                    <a>{board.name}</a>
+                                </li>
+                            </IpadCursorBlockWrapper>
+                        ))}
+                    </ul>
                 </div>
             </div>
 

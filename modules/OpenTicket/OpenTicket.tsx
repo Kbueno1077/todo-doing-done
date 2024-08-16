@@ -13,7 +13,7 @@ import {
 
 import Avatar from "@/components/Avatar/Avatar";
 import GroupedAvatars from "@/components/Avatar/GroupedAvatars";
-import { mockUsers } from "@/mock/mockTickets";
+import { useStoreContext } from "@/store/useStoreContext";
 import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
 
@@ -24,7 +24,6 @@ interface AddTicketProps {
 
 function OpenTicket({ ticket, index }: AddTicketProps) {
     const [isLoading, setIsLoading] = useState(true);
-    console.log("🚀 ~ OpenTicket ~ isLoading:", isLoading);
     const [isOpen, setIsOpen] = useState(false);
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
 
@@ -38,6 +37,14 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
     const [selectedUsers, setSelectedUsers] = useState<User[]>(
         ticket.AssignedToTickets?.map((assigned) => assigned.Users) || []
     );
+
+    const { users, updateTicket, selectedBoardId } = useStoreContext((s) => {
+        return {
+            users: s.users,
+            updateTicket: s.updateTicket,
+            selectedBoardId: s.selectedBoardId,
+        };
+    });
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -67,12 +74,12 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         setIsLoading(true);
 
         const supabase = createClient();
+
+        //Load comments on this ticket
         const { data } = await supabase
             .from("Tickets")
             .select("Comments(*, Users(*))")
             .eq("id", ticket.id);
-
-        console.log("🚀 ~ openModal ~ data:", data);
 
         if (data && data[0]) {
             setComments(data[0].Comments || []);
@@ -92,6 +99,46 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         setComment("");
         setComments([]);
         setIsOpen(false);
+    }
+
+    async function handleSubmit() {
+        const isDataUpdateNeeded =
+            title !== ticket.title ||
+            description !== ticket.description ||
+            priority !== ticket.priority;
+
+        const isAssignedUpdateNeeded =
+            // Ensure both arrays exist and have a length property
+            (ticket.AssignedToTickets?.length || 0) !==
+                (selectedUsers?.length || 0) ||
+            // Check if every currently assigned user is in the selectedUsers
+            !(ticket.AssignedToTickets || []).every((assigned) =>
+                (selectedUsers || []).some(
+                    (sel) => assigned.Users.id === sel.id
+                )
+            ) ||
+            // Check if every selected user is in the currently assigned users
+            !(selectedUsers || []).every((sel) =>
+                (ticket.AssignedToTickets || []).some(
+                    (assigned) => assigned.Users.id === sel.id
+                )
+            );
+
+        const newTicket = {
+            id: ticket.id,
+            title: title,
+            description: description,
+            priority: priority,
+            status: "Todo",
+            board_id: selectedBoardId,
+        };
+
+        await updateTicket(
+            { newTicket, isUpdateNeeded: isDataUpdateNeeded },
+            { selectedUsers, isUpdateNeeded: isAssignedUpdateNeeded },
+            comment
+        );
+        closeModal();
     }
 
     return (
@@ -205,7 +252,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
 
                                     {isDropDownOpen && (
                                         <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                                            {mockUsers.map((user) => (
+                                            {users.map((user) => (
                                                 <li key={user.id}>
                                                     <IpadCursorBlockWrapper>
                                                         <label className="flex items-center space-x-2 ">
@@ -339,7 +386,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                     <IpadCursorBlockWrapper>
                                         <button
                                             className="btn btn-success"
-                                            onClick={closeModal}
+                                            onClick={handleSubmit}
                                         >
                                             Save
                                         </button>

@@ -10,6 +10,7 @@ interface ColumnProps {
     list: Ticket[] | never[];
 }
 const Column: React.FC<ColumnProps> = ({ id, list }) => {
+    console.log("🚀 ~ id:", id);
     return (
         <Droppable droppableId={id}>
             {(provided) => (
@@ -19,7 +20,7 @@ const Column: React.FC<ColumnProps> = ({ id, list }) => {
                             <h2 className="uppercase font-bold">{id}</h2>
                         </IpadCursorBlockWrapper>
 
-                        <AddTicket addTo={id} />
+                        <AddTicket status={id} />
                     </div>
 
                     <div

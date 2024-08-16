@@ -2,44 +2,66 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { groupByStatus } from "@/utils/utils";
+import { useStoreContext } from "@/store/useStoreContext";
 import { IconPlus } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import Column from "../Column/Column";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 
 function MultipleColumnsExample() {
-    const initialColumns = {
-        Todo: { id: "Todo", list: [] },
-        doing: {
-            id: "doing",
-            list: [],
-        },
-        done: {
-            id: "done",
-            list: [],
-        },
-    };
-    const [columns, setColumns] = useState(initialColumns);
+    const queryClient = useQueryClient();
     const [isLoading, setIsLoading] = useState(true);
+
+    const {
+        loadAllUsers,
+        loadTicketsFromBoard,
+        loadAllBoards,
+        columns,
+        setColumns,
+    } = useStoreContext((s) => {
+        return {
+            columns: s.columns,
+            setColumns: s.setColumns,
+            loadTicketsFromBoard: s.loadTicketsFromBoard,
+            loadAllUsers: s.loadAllUsers,
+            loadAllBoards: s.loadAllBoards,
+        };
+    });
 
     const fetchData = async () => {
         setIsLoading(true);
-        const supabase = createClient();
-        const { data } = await supabase
-            .from("Tickets")
-            .select("*, AssignedToTickets(*, Users(*))");
 
-        const groupedData = groupByStatus(data);
-        console.log("🚀 ~ fetchData ~ groupedData:", groupedData);
+        const boards = await loadAllBoards();
+        const users = await loadAllUsers();
 
-        setColumns({ ...initialColumns, ...groupedData });
+        const localStorageBoardId = localStorage.getItem("save-boards");
+        const selectedBoardId = JSON.parse(localStorageBoardId ?? "{}").state
+            .selectedBoardId;
+
+        const groupedData = await loadTicketsFromBoard(
+            selectedBoardId ? selectedBoardId : boards[0].id
+        );
+
         setIsLoading(false);
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    // Queries
+    const query = useQuery({
+        queryKey: ["todos"],
+        queryFn: fetchData,
+        refetchOnWindowFocus: false,
+    });
+
+    // Mutations
+    const mutation = useMutation({
+        mutationFn: fetchData,
+        onSuccess: () => {
+            // Invalidate and refetch
+            queryClient.invalidateQueries({ queryKey: ["todos"] });
+        },
+    });
 
     const onDragEnd = ({ source, destination }: DropResult) => {
         // Make sure we have a valid destination
