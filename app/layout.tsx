@@ -19,8 +19,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" className={GeistSans.className} data-theme="sunset">
-            <body className="bg-background text-foreground">
+        <html lang="en" className={GeistSans.className} data-theme="light">
+            <body>
                 <Providers>
                     <main className="min-h-screen flex flex-col items-center">
                         <Navbar />

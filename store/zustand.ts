@@ -11,16 +11,22 @@ export interface StoreProps {
     boards: any[];
     selectedBoardId: string;
     users: User[];
+
     loadAllBoards: () => Promise<any>;
-    loadAllTickets: () => Promise<any>;
     loadTicketsFromBoard: (boardId: string) => Promise<any>;
-    loadAllUsers: () => Promise<any>;
+    createBoardAndAddMembers: (
+        boardName: string,
+        selectedUsers: User[]
+    ) => Promise<any>;
+
     createTicket: (ticket: any, selectedUsers: User[]) => Promise<any>;
     updateTicket: (
         ticket: { newTicket: any; isUpdateNeeded: boolean },
         users: { selectedUsers: User[]; isUpdateNeeded: boolean },
         comment: string
     ) => Promise<any>;
+
+    loadAllUsers: () => Promise<any>;
     setColumns: (columns: any) => void;
 }
 

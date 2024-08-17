@@ -14,25 +14,24 @@ import {
 
 import { useState } from "react";
 
-interface AddTicketProps {
-    status: string;
-}
-
-function AddTicket({ status }: AddTicketProps) {
+function CreateBoard() {
     const [isOpen, setIsOpen] = useState(false);
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
 
-    const [priority, setPriority] = useState(0);
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
+    const [name, setName] = useState("");
     const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
-    const { createTicket, selectedBoardId, users } = useStoreContext((s) => {
-        return {
-            createTicket: s.createTicket,
-            selectedBoardId: s.selectedBoardId,
-            users: s.users,
-        };
+    const { createBoardAndAddMembers, selectedBoardId, users } =
+        useStoreContext((s) => {
+            return {
+                createBoardAndAddMembers: s.createBoardAndAddMembers,
+                selectedBoardId: s.selectedBoardId,
+                users: s.users,
+            };
+        });
+
+    const {} = useStoreContext((s) => {
+        return {};
     });
 
     const handleInputChange = (
@@ -64,23 +63,12 @@ function AddTicket({ status }: AddTicketProps) {
     }
 
     function closeModal() {
-        setPriority(0);
-        setTitle("");
-        setDescription("");
         setSelectedUsers([]);
         setIsOpen(false);
     }
 
     const handleSubmit = async () => {
-        const ticket = {
-            title: title,
-            description: description,
-            priority: priority,
-            status,
-            board_id: selectedBoardId,
-        };
-
-        await createTicket(ticket, selectedUsers);
+        await createBoardAndAddMembers(name, selectedUsers);
         closeModal();
     };
 
@@ -103,7 +91,7 @@ function AddTicket({ status }: AddTicketProps) {
                                 <div className="flex gap-4 items-center py-4">
                                     <IconStackPush size={30} />
                                     <h1 className="font-bold text-2xl">
-                                        New Ticket
+                                        New Board
                                     </h1>
                                 </div>
                             </IpadCursorBlockWrapper>
@@ -118,72 +106,22 @@ function AddTicket({ status }: AddTicketProps) {
                                     >
                                         <input
                                             type="text"
-                                            placeholder="Title"
+                                            placeholder="Board Name"
                                             className="input input-bordered w-full text-foreground text-lg"
-                                            value={title}
+                                            value={name}
                                             onChange={(e) =>
-                                                handleInputChange(e, setTitle)
+                                                handleInputChange(e, setName)
                                             }
                                         />
                                     </IpadCursorBlockWrapper>
                                 </div>
-
-                                <div className="flex gap-4">
-                                    <IconArticle size={30} />
-
-                                    <IpadCursorBlockWrapper
-                                        type="text"
-                                        className="w-full"
-                                    >
-                                        <textarea
-                                            rows={5}
-                                            className="textarea textarea-bordered w-full text-foreground text-lg"
-                                            placeholder="Description"
-                                            value={description}
-                                            onChange={(e) =>
-                                                handleInputChange(
-                                                    e,
-                                                    setDescription
-                                                )
-                                            }
-                                        ></textarea>
-                                    </IpadCursorBlockWrapper>
-                                </div>
-
-                                <div className="">
-                                    <h3 className="text-lg my-2 ">Priority</h3>
-                                    <input
-                                        type="range"
-                                        min={0}
-                                        max={10}
-                                        value={priority}
-                                        onChange={(e) =>
-                                            handleInputChange(e, setPriority)
-                                        }
-                                        className="range"
-                                        step={1}
-                                    />
-                                    <div className="flex w-full justify-between px-2 text-xs">
-                                        <span>0</span>
-                                        <span>1</span>
-                                        <span>2</span>
-                                        <span>3</span>
-                                        <span>4</span>
-                                        <span>5</span>
-                                        <span>6</span>
-                                        <span>7</span>
-                                        <span>8</span>
-                                        <span>9</span>
-                                        <span>10</span>
-                                    </div>
-                                </div>
                             </div>
 
                             <div>
-                                <div className="dropdown">
+                                <div className="dropdown w-full">
                                     <div className="flex gap-2 items-center">
                                         <button
-                                            className="btn m-1"
+                                            className="btn m-1 w-full"
                                             onClick={() =>
                                                 setIsDropDownOpen(
                                                     !isDropDownOpen
@@ -264,4 +202,4 @@ function AddTicket({ status }: AddTicketProps) {
     );
 }
 
-export default AddTicket;
+export default CreateBoard;

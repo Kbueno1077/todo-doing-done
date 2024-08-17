@@ -91,17 +91,17 @@ const priorityIcons = [
 
 export const renderPriorityIcon = (priority: number) => {
     if (priority > 0 && priority < 3) {
-        const IconComponent = priorityIcons[priority];
+        const IconComponent = priorityIcons[priority - 1];
         return <IconComponent className="text-success" />;
     }
 
     if (priority >= 3 && priority < 7) {
-        const IconComponent = priorityIcons[priority];
+        const IconComponent = priorityIcons[priority - 1];
         return <IconComponent className="text-info" />;
     }
 
     if (priority >= 7 && priority < 10) {
-        const IconComponent = priorityIcons[priority];
+        const IconComponent = priorityIcons[priority - 1];
         return <IconComponent className="text-warning" />;
     }
 

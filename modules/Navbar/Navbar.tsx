@@ -2,6 +2,8 @@
 import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
 import { useStoreContext } from "@/store/useStoreContext";
 import React, { useState } from "react";
+import CreateBoard from "../CreateBoard/CreateBoard";
+import ThemeController from "@/components/ThemeController/ThemeController";
 
 function Navbar() {
     const [isLoading, setIsLoading] = useState(false);
@@ -69,7 +71,6 @@ function Navbar() {
                         </IpadCursorBlockWrapper>
                     </ul>
                 </div>
-
                 <div className="dropdown navbar-center cursor-none">
                     <IpadCursorBlockWrapper>
                         <div
@@ -100,9 +101,14 @@ function Navbar() {
                         ))}
                     </ul>
                 </div>
+                <div className="ml-1 mt-1">
+                    <CreateBoard />
+                </div>
             </div>
 
             <div className="navbar-end">
+                <ThemeController />
+
                 <IpadCursorBlockWrapper>
                     <button className="btn btn-ghost ">
                         <svg

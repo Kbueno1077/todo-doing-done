@@ -10,7 +10,6 @@ interface ColumnProps {
     list: Ticket[] | never[];
 }
 const Column: React.FC<ColumnProps> = ({ id, list }) => {
-    console.log("🚀 ~ id:", id);
     return (
         <Droppable droppableId={id}>
             {(provided) => (
