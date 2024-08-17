@@ -28,9 +28,14 @@ export default function RootLayout({
                         {children}
                     </main>
 
+                    <div
+                        id="toast-container"
+                        className="toast toast-bottom toast-end z-[9999]"
+                    ></div>
+
                     <footer className="w-full border-t border-t-foreground/10 p-8 flex justify-center text-center text-xs mt-5">
                         <p>
-                            Powered by{" "}
+                            Powered by
                             <a
                                 href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
                                 target="_blank"

@@ -20,6 +20,7 @@ export interface StoreProps {
     ) => Promise<any>;
 
     createTicket: (ticket: any, selectedUsers: User[]) => Promise<any>;
+    deleteTicket: (ticketId: string) => Promise<any>;
     updateTicket: (
         ticket: { newTicket: any; isUpdateNeeded: boolean },
         users: { selectedUsers: User[]; isUpdateNeeded: boolean },

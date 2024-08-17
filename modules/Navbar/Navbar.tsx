@@ -4,6 +4,7 @@ import { useStoreContext } from "@/store/useStoreContext";
 import React, { useState } from "react";
 import CreateBoard from "../CreateBoard/CreateBoard";
 import ThemeController from "@/components/ThemeController/ThemeController";
+import { showToast } from "@/utils/utils";
 
 function Navbar() {
     const [isLoading, setIsLoading] = useState(false);
@@ -129,7 +130,12 @@ function Navbar() {
                 </IpadCursorBlockWrapper>
 
                 <IpadCursorBlockWrapper>
-                    <button className="btn btn-ghost ">
+                    <button
+                        onClick={() => {
+                            showToast("Notification");
+                        }}
+                        className="btn btn-ghost "
+                    >
                         <div className="indicator">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"

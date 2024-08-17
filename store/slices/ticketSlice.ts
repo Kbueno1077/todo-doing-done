@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@/utils/types";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { showToast } from "@/utils/utils";
 
 const supabase = createClient();
 
@@ -20,12 +20,23 @@ export const createTicketSlice = (set: any, get: any) => ({
 
             if (error) throw error;
 
+            if (!data) {
+                throw new Error("No board ID returned from the server");
+            }
+
             // Reload tickets or update state
             await get().loadTicketsFromBoard(get().selectedBoardId);
 
+            showToast("Ticket created successfully", "success");
+
             return data;
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error creating ticket:", error);
+            const errorMessage = error?.message
+                ? error?.message
+                : "An unexpected error occurred while creating the ticket";
+
+            showToast(errorMessage, "Error");
             return error instanceof Error
                 ? error
                 : new Error("An unknown error occurred");
@@ -51,15 +62,60 @@ export const createTicketSlice = (set: any, get: any) => ({
 
             if (error) throw error;
 
+            if (!data) {
+                throw new Error("No board ID returned from the server");
+            }
+
             // Reload tickets or update state
             await get().loadTicketsFromBoard(get().selectedBoardId);
 
+            showToast("Ticket updated successfully", "success");
+
             return { success: true };
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error updating ticket:", error);
+            const errorMessage = error?.message
+                ? error?.message
+                : "An unexpected error occurred while updating the ticket";
+
+            showToast(errorMessage, "Error");
             return error instanceof Error
                 ? error
                 : new Error("An unknown error occurred");
+        }
+    },
+
+    deleteTicket: async (ticketId: string): Promise<any | Error> => {
+        try {
+            const { data, error } = await supabase
+                .from("Tickets")
+                .update({ isActive: false })
+                .eq("id", ticketId)
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            if (!data) {
+                throw new Error("No data returned from the update operation");
+            }
+
+            await get().loadTicketsFromBoard(get().selectedBoardId);
+
+            showToast("Ticket deleted successfully", "success");
+            return { success: true, data };
+        } catch (error: any) {
+            console.error("Error updating ticket isActive status:", error);
+
+            const errorMessage = error?.message
+                ? error?.message
+                : "An unexpected error occurred while deleting the ticket";
+
+            showToast(errorMessage, "error");
+            return {
+                success: false,
+                error: errorMessage,
+            };
         }
     },
 });

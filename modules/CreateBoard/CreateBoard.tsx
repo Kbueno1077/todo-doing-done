@@ -3,22 +3,30 @@
 import Avatar from "@/components/Avatar/Avatar";
 import GroupedAvatars from "@/components/Avatar/GroupedAvatars";
 import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
+import ZodInput from "@/components/ZodInput/ZodInput";
 import { useStoreContext } from "@/store/useStoreContext";
 import { User } from "@/utils/types";
-import {
-    IconArticle,
-    IconH1,
-    IconPlus,
-    IconStackPush,
-} from "@tabler/icons-react";
-
+import { showToast } from "@/utils/utils";
+import { IconBrandTrello, IconH1, IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
+import { set, z } from "zod";
+
+const createBoardSchema = z.object({
+    name: z.string().min(1, { message: "Board name is required" }),
+});
+
+type CreateBoardFormData = z.infer<typeof createBoardSchema>;
 
 function CreateBoard() {
     const [isOpen, setIsOpen] = useState(false);
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const [name, setName] = useState("");
+    const [formData, setFormData] = useState<CreateBoardFormData>({ name: "" });
+    const [errors, setErrors] = useState<
+        Partial<Record<keyof CreateBoardFormData, string>>
+    >({});
+
     const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
     const { createBoardAndAddMembers, selectedBoardId, users } =
@@ -30,19 +38,22 @@ function CreateBoard() {
             };
         });
 
-    const {} = useStoreContext((s) => {
-        return {};
-    });
+    const handleChange = (name: keyof CreateBoardFormData, value: string) => {
+        setFormData((prev) => ({ ...prev, [name]: value }));
 
-    const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-        setter: React.Dispatch<React.SetStateAction<string | number>>
-    ) => {
-        const value =
-            e.target.type === "number"
-                ? parseInt(e.target.value)
-                : e.target.value;
-        setter(value);
+        // Validate the field
+        const result = createBoardSchema.shape[name].safeParse(value);
+        if (!result.success) {
+            setErrors((prev) => ({
+                ...prev,
+                [name]: result.error.errors[0].message,
+            }));
+        } else {
+            setErrors((prev) => {
+                const { [name]: _, ...rest } = prev;
+                return rest;
+            });
+        }
     };
 
     const toggleUser = (user: User) => {
@@ -64,11 +75,30 @@ function CreateBoard() {
 
     function closeModal() {
         setSelectedUsers([]);
+        setErrors({});
+        setFormData({ name: "" });
         setIsOpen(false);
     }
 
     const handleSubmit = async () => {
-        await createBoardAndAddMembers(name, selectedUsers);
+        const result = createBoardSchema.safeParse(formData);
+        if (!result.success) {
+            const newErrors: Partial<
+                Record<keyof CreateBoardFormData, string>
+            > = {};
+            result.error.issues.forEach((issue) => {
+                if (issue.path[0]) {
+                    newErrors[issue.path[0] as keyof CreateBoardFormData] =
+                        issue.message;
+                }
+            });
+            setErrors(newErrors);
+            return;
+        }
+
+        setIsLoading(true);
+        await createBoardAndAddMembers(formData.name, selectedUsers);
+        setIsLoading(false);
         closeModal();
     };
 
@@ -85,11 +115,11 @@ function CreateBoard() {
 
             {isOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-80 z-[9999]">
-                    <div className="flex h-full justify-center items-center text-foreground">
-                        <div className="w-3/4 max-w-[1280px] bg-background rounded-md p-8 flex flex-col mt-2">
+                    <div className="flex h-full justify-center items-center ">
+                        <div className="w-3/4 max-w-[1280px] bg-base-300  rounded-md p-8 flex flex-col mt-2">
                             <IpadCursorBlockWrapper type="text">
                                 <div className="flex gap-4 items-center py-4">
-                                    <IconStackPush size={30} />
+                                    <IconBrandTrello size={30} />
                                     <h1 className="font-bold text-2xl">
                                         New Board
                                     </h1>
@@ -104,14 +134,16 @@ function CreateBoard() {
                                         type="text"
                                         className="w-full"
                                     >
-                                        <input
-                                            type="text"
+                                        <ZodInput
+                                            schema={createBoardSchema}
+                                            name="name"
+                                            label="Board Name"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            error={errors.name}
                                             placeholder="Board Name"
-                                            className="input input-bordered w-full text-foreground text-lg"
-                                            value={name}
-                                            onChange={(e) =>
-                                                handleInputChange(e, setName)
-                                            }
+                                            disabled={isLoading}
+                                            className="input input-bordered w-full text-lg"
                                         />
                                     </IpadCursorBlockWrapper>
                                 </div>
@@ -122,6 +154,7 @@ function CreateBoard() {
                                     <div className="flex gap-2 items-center">
                                         <button
                                             className="btn m-1 w-full"
+                                            disabled={isLoading}
                                             onClick={() =>
                                                 setIsDropDownOpen(
                                                     !isDropDownOpen
@@ -180,6 +213,7 @@ function CreateBoard() {
                                     <button
                                         className="btn"
                                         onClick={closeModal}
+                                        disabled={isLoading}
                                     >
                                         Cancel
                                     </button>
@@ -189,8 +223,13 @@ function CreateBoard() {
                                     <button
                                         className="btn btn-success"
                                         onClick={handleSubmit}
+                                        disabled={isLoading}
                                     >
-                                        Create
+                                        {isLoading ? (
+                                            <span className="loading loading-bars loading-xs"></span>
+                                        ) : (
+                                            "Create"
+                                        )}
                                     </button>
                                 </IpadCursorBlockWrapper>
                             </div>

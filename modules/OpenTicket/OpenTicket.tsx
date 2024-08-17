@@ -9,6 +9,7 @@ import {
     IconH1,
     IconMessage,
     IconStackPush,
+    IconTrash,
 } from "@tabler/icons-react";
 
 import Avatar from "@/components/Avatar/Avatar";
@@ -16,6 +17,7 @@ import GroupedAvatars from "@/components/Avatar/GroupedAvatars";
 import { useStoreContext } from "@/store/useStoreContext";
 import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
+import DeleteTicket from "./DeleteTicket";
 
 interface AddTicketProps {
     ticket: Ticket;
@@ -23,8 +25,11 @@ interface AddTicketProps {
 }
 
 function OpenTicket({ ticket, index }: AddTicketProps) {
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingComments, setIsLoadingComments] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
 
     const [title, setTitle] = useState(ticket.title || "");
@@ -37,6 +42,10 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
     const [selectedUsers, setSelectedUsers] = useState<User[]>(
         ticket.AssignedToTickets?.map((assigned) => assigned.Users) || []
     );
+
+    const toggleDelete = () => {
+        setIsDeleteOpen(!isDeleteOpen);
+    };
 
     const { users, updateTicket, selectedBoardId } = useStoreContext((s) => {
         return {
@@ -71,7 +80,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
     };
 
     async function openModal() {
-        setIsLoading(true);
+        setIsLoadingComments(true);
 
         const supabase = createClient();
 
@@ -85,7 +94,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
             setComments(data[0].Comments || []);
         }
 
-        setIsLoading(false);
+        setIsLoadingComments(false);
         setIsOpen(true);
     }
 
@@ -98,10 +107,14 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         );
         setComment("");
         setComments([]);
+        setIsLoading(false);
+        setIsLoadingComments(false);
         setIsOpen(false);
     }
 
     async function handleSubmit() {
+        setIsLoading(true);
+
         const isDataUpdateNeeded =
             title !== ticket.title ||
             description !== ticket.description ||
@@ -138,6 +151,8 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
             { selectedUsers, isUpdateNeeded: isAssignedUpdateNeeded },
             comment
         );
+
+        setIsLoading(false);
         closeModal();
     }
 
@@ -147,252 +162,326 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
 
             {isOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-80 z-[9999]">
-                    <div className="flex h-full justify-center items-center text-foreground">
-                        <div className="w-3/4 max-w-[1280px] bg-background rounded-md p-8 flex flex-col mt-2">
-                            <IpadCursorBlockWrapper type="text">
-                                <div className="flex gap-4 items-center">
-                                    <IconStackPush size={30} />
-                                    <h1 className="font-bold text-2xl">
-                                        {ticket.title}
-                                    </h1>
-                                </div>
-                            </IpadCursorBlockWrapper>
-
-                            <div className="flex flex-col gap-4 py-4">
-                                <div className="flex gap-4 py-4">
-                                    <IconH1 size={30} />
-
-                                    <IpadCursorBlockWrapper
-                                        type="text"
-                                        className="w-full"
-                                    >
-                                        <input
-                                            type="text"
-                                            placeholder="Title"
-                                            className="input input-bordered w-full text-foreground text-lg"
-                                            value={title}
-                                            onChange={(e) =>
-                                                handleInputChange(e, setTitle)
-                                            }
-                                        />
-                                    </IpadCursorBlockWrapper>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <IconArticle size={30} />
-
-                                    <IpadCursorBlockWrapper
-                                        type="text"
-                                        className="w-full"
-                                    >
-                                        <textarea
-                                            rows={5}
-                                            className="textarea textarea-bordered w-full text-foreground text-lg"
-                                            placeholder="Description"
-                                            value={description}
-                                            onChange={(e) =>
-                                                handleInputChange(
-                                                    e,
-                                                    setDescription
-                                                )
-                                            }
-                                        ></textarea>
-                                    </IpadCursorBlockWrapper>
-                                </div>
-
-                                <div className="">
-                                    <h3 className="text-lg my-2 ">Priority</h3>
-                                    <input
-                                        type="range"
-                                        min={0}
-                                        max={10}
-                                        value={priority}
-                                        onChange={(e) =>
-                                            handleInputChange(e, setPriority)
-                                        }
-                                        className="range"
-                                        step={1}
-                                    />
-                                    <div className="flex w-full justify-between px-2 text-xs">
-                                        <span>0</span>
-                                        <span>1</span>
-                                        <span>2</span>
-                                        <span>3</span>
-                                        <span>4</span>
-                                        <span>5</span>
-                                        <span>6</span>
-                                        <span>7</span>
-                                        <span>8</span>
-                                        <span>9</span>
-                                        <span>10</span>
+                    <div className="flex h-full justify-center items-center">
+                        <div className="w-3/4 max-w-[1280px] bg-base-300 rounded-md p-8 flex flex-col mt-2">
+                            <div className="flex items-center justify-between">
+                                <IpadCursorBlockWrapper type="text">
+                                    <div className="flex gap-4 items-center">
+                                        <IconStackPush size={30} />
+                                        <h1 className="font-bold text-2xl">
+                                            {ticket.title}
+                                        </h1>
                                     </div>
-                                </div>
-                            </div>
+                                </IpadCursorBlockWrapper>
 
-                            <div>
-                                <div className="dropdown">
-                                    <div className="flex gap-2 items-center">
+                                {!isDeleteOpen && (
+                                    <IpadCursorBlockWrapper>
                                         <button
-                                            className="btn m-1"
-                                            onClick={() =>
-                                                setIsDropDownOpen(
-                                                    !isDropDownOpen
-                                                )
-                                            }
+                                            onClick={toggleDelete}
+                                            className="btn btn-square btn-outline"
+                                            disabled={isLoading}
                                         >
-                                            Assign To ({selectedUsers.length})
-                                        </button>
-
-                                        {selectedUsers.length > 0 && (
-                                            <GroupedAvatars
-                                                assignedTo={selectedUsers}
+                                            <IconTrash
+                                                size={20}
+                                                className={`${
+                                                    isDeleteOpen &&
+                                                    "text-warning"
+                                                }`}
                                             />
-                                        )}
-                                    </div>
-
-                                    {isDropDownOpen && (
-                                        <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                                            {users.map((user) => (
-                                                <li key={user.id}>
-                                                    <IpadCursorBlockWrapper>
-                                                        <label className="flex items-center space-x-2 ">
-                                                            <button
-                                                                className="w-full flex items-center space-x-2 "
-                                                                onClick={() =>
-                                                                    toggleUser(
-                                                                        user
-                                                                    )
-                                                                }
-                                                            >
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={selectedUsers.some(
-                                                                        (u) =>
-                                                                            u.id ===
-                                                                            user.id
-                                                                    )}
-                                                                    className="checkbox"
-                                                                />
-
-                                                                <Avatar
-                                                                    user={user}
-                                                                />
-                                                            </button>
-                                                        </label>
-                                                    </IpadCursorBlockWrapper>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
+                                        </button>
+                                    </IpadCursorBlockWrapper>
+                                )}
                             </div>
 
-                            <div className="mt-2">
-                                <h3 className="text-lg my-2 ">Comments</h3>
+                            {!isDeleteOpen ? (
+                                <>
+                                    <div className="flex flex-col gap-4 py-4">
+                                        <div className="flex gap-4 py-4">
+                                            <IconH1 size={30} />
 
-                                {isLoading && (
-                                    <>
-                                        <div className="skeleton h-60 w-full mb-5"></div>
-                                    </>
-                                )}
-
-                                {comments?.map((comment, index) => (
-                                    <div
-                                        key={comment.id}
-                                        className={`flex gap-4 items-center py-4 ${
-                                            comments.length - 1 === index
-                                                ? "justify-end"
-                                                : ""
-                                        }`}
-                                    >
-                                        <div className="avatar">
-                                            <div className="w-8 rounded">
-                                                <img
-                                                    src={
-                                                        comment.Users.img ||
-                                                        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                                            <IpadCursorBlockWrapper
+                                                type="text"
+                                                className="w-full"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    placeholder="Title"
+                                                    disabled={isLoading}
+                                                    className="input input-bordered w-full text-lg"
+                                                    value={title}
+                                                    onChange={(e) =>
+                                                        handleInputChange(
+                                                            e,
+                                                            setTitle
+                                                        )
                                                     }
                                                 />
-                                            </div>
+                                            </IpadCursorBlockWrapper>
                                         </div>
 
-                                        <div className="flex flex-col">
-                                            <div>
-                                                <p className="text-sm">
-                                                    {comment.Users.name} {"   "}
-                                                    -{"   "}
-                                                    {format(comment.updatedAt, {
-                                                        date: "full",
-                                                        time: "short",
-                                                    })}
-                                                </p>
+                                        <div className="flex gap-4">
+                                            <IconArticle size={30} />
+
+                                            <IpadCursorBlockWrapper
+                                                type="text"
+                                                className="w-full"
+                                            >
+                                                <textarea
+                                                    rows={5}
+                                                    className="textarea textarea-bordered w-full text-lg"
+                                                    placeholder="Description"
+                                                    disabled={isLoading}
+                                                    value={description}
+                                                    onChange={(e) =>
+                                                        handleInputChange(
+                                                            e,
+                                                            setDescription
+                                                        )
+                                                    }
+                                                ></textarea>
+                                            </IpadCursorBlockWrapper>
+                                        </div>
+
+                                        <div className="">
+                                            <h3 className="text-lg my-2 ">
+                                                Priority
+                                            </h3>
+                                            <input
+                                                type="range"
+                                                min={0}
+                                                max={10}
+                                                disabled={isLoading}
+                                                value={priority}
+                                                onChange={(e) =>
+                                                    handleInputChange(
+                                                        e,
+                                                        setPriority
+                                                    )
+                                                }
+                                                className="range"
+                                                step={1}
+                                            />
+                                            <div className="flex w-full justify-between px-2 text-xs">
+                                                <span>0</span>
+                                                <span>1</span>
+                                                <span>2</span>
+                                                <span>3</span>
+                                                <span>4</span>
+                                                <span>5</span>
+                                                <span>6</span>
+                                                <span>7</span>
+                                                <span>8</span>
+                                                <span>9</span>
+                                                <span>10</span>
                                             </div>
-                                            <p className="text-sm">
-                                                {comment.content}
-                                            </p>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
 
-                            <div className="flex gap-4 mt-2">
-                                <IconMessage size={30} />
+                                    <div>
+                                        <div className="dropdown">
+                                            <div className="flex gap-2 items-center">
+                                                <button
+                                                    className="btn m-1"
+                                                    disabled={isLoading}
+                                                    onClick={() =>
+                                                        setIsDropDownOpen(
+                                                            !isDropDownOpen
+                                                        )
+                                                    }
+                                                >
+                                                    Assign To (
+                                                    {selectedUsers.length})
+                                                </button>
 
-                                <IpadCursorBlockWrapper
-                                    type="text"
-                                    className="w-full"
-                                >
-                                    <textarea
-                                        rows={5}
-                                        className="textarea textarea-bordered w-full text-foreground text-lg"
-                                        placeholder="Add comment"
-                                        disabled={isLoading}
-                                        value={comment}
-                                        onChange={(e) =>
-                                            handleInputChange(e, setComment)
-                                        }
-                                    ></textarea>
-                                </IpadCursorBlockWrapper>
-                            </div>
+                                                {selectedUsers.length > 0 && (
+                                                    <GroupedAvatars
+                                                        assignedTo={
+                                                            selectedUsers
+                                                        }
+                                                    />
+                                                )}
+                                            </div>
 
-                            <div className="flex gap-2 w-full items-center justify-between mt-6">
-                                <div>
-                                    <p className="text-xs font-bold italic">
-                                        <span className="">Created at: </span>
-                                        {format(ticket.createdAt, {
-                                            date: "full",
-                                            time: "short",
-                                        })}
-                                    </p>
-                                    <p className="text-xs font-bold italic">
-                                        <span className="">Updated at: </span>
-                                        {format(ticket.updatedAt, {
-                                            date: "full",
-                                            time: "short",
-                                        })}
-                                    </p>
-                                </div>
+                                            {isDropDownOpen && (
+                                                <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                                    {users.map((user) => (
+                                                        <li key={user.id}>
+                                                            <IpadCursorBlockWrapper>
+                                                                <label className="flex items-center space-x-2 ">
+                                                                    <button
+                                                                        className="w-full flex items-center space-x-2 "
+                                                                        onClick={() =>
+                                                                            toggleUser(
+                                                                                user
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={selectedUsers.some(
+                                                                                (
+                                                                                    u
+                                                                                ) =>
+                                                                                    u.id ===
+                                                                                    user.id
+                                                                            )}
+                                                                            className="checkbox"
+                                                                        />
 
-                                <div className="flex gap-2">
-                                    <IpadCursorBlockWrapper>
-                                        <button
-                                            className="btn"
-                                            onClick={closeModal}
+                                                                        <Avatar
+                                                                            user={
+                                                                                user
+                                                                            }
+                                                                        />
+                                                                    </button>
+                                                                </label>
+                                                            </IpadCursorBlockWrapper>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-2">
+                                        <h3 className="text-lg my-2 ">
+                                            Comments
+                                        </h3>
+
+                                        {isLoadingComments && (
+                                            <>
+                                                <div className="skeleton h-60 w-full mb-5"></div>
+                                            </>
+                                        )}
+
+                                        {comments?.map((comment, index) => (
+                                            <div
+                                                key={comment.id}
+                                                className={`flex gap-4 items-center py-4 ${
+                                                    comments.length - 1 ===
+                                                    index
+                                                        ? "justify-end"
+                                                        : ""
+                                                }`}
+                                            >
+                                                <div className="avatar">
+                                                    <div className="w-8 rounded">
+                                                        <img
+                                                            src={
+                                                                comment.Users
+                                                                    .img ||
+                                                                "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex flex-col">
+                                                    <div>
+                                                        <p className="text-sm">
+                                                            {comment.Users.name}{" "}
+                                                            {"   "}-{"   "}
+                                                            {format(
+                                                                comment.updatedAt,
+                                                                {
+                                                                    date: "full",
+                                                                    time: "short",
+                                                                }
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-sm">
+                                                        {comment.content}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="flex gap-4 mt-2">
+                                        <IconMessage size={30} />
+
+                                        <IpadCursorBlockWrapper
+                                            type="text"
+                                            className="w-full"
                                         >
-                                            Cancel
-                                        </button>
-                                    </IpadCursorBlockWrapper>
+                                            <textarea
+                                                rows={5}
+                                                className="textarea textarea-bordered w-full text-lg"
+                                                placeholder="Add comment"
+                                                disabled={
+                                                    isLoading ||
+                                                    isLoadingComments
+                                                }
+                                                value={comment}
+                                                onChange={(e) =>
+                                                    handleInputChange(
+                                                        e,
+                                                        setComment
+                                                    )
+                                                }
+                                            ></textarea>
+                                        </IpadCursorBlockWrapper>
+                                    </div>
 
-                                    <IpadCursorBlockWrapper>
-                                        <button
-                                            className="btn btn-success"
-                                            onClick={handleSubmit}
-                                        >
-                                            Save
-                                        </button>
-                                    </IpadCursorBlockWrapper>
-                                </div>
-                            </div>
+                                    <div className="flex gap-2 w-full items-center justify-between mt-6">
+                                        <div>
+                                            <p className="text-xs font-bold italic">
+                                                <span className="">
+                                                    Created at:{" "}
+                                                </span>
+                                                {format(ticket.createdAt, {
+                                                    date: "full",
+                                                    time: "short",
+                                                })}
+                                            </p>
+                                            <p className="text-xs font-bold italic">
+                                                <span className="">
+                                                    Updated at:{" "}
+                                                </span>
+                                                {format(ticket.updatedAt, {
+                                                    date: "full",
+                                                    time: "short",
+                                                })}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex gap-2">
+                                            <IpadCursorBlockWrapper>
+                                                <button
+                                                    className="btn"
+                                                    onClick={closeModal}
+                                                    disabled={isLoading}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </IpadCursorBlockWrapper>
+
+                                            <IpadCursorBlockWrapper>
+                                                <button
+                                                    className="btn btn-success"
+                                                    onClick={handleSubmit}
+                                                    disabled={isLoading}
+                                                >
+                                                    {isLoading ? (
+                                                        <span className="loading loading-bars loading-xs"></span>
+                                                    ) : (
+                                                        "Save"
+                                                    )}
+                                                </button>
+                                            </IpadCursorBlockWrapper>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <DeleteTicket
+                                        toggleDelete={toggleDelete}
+                                        ticketId={ticket.id}
+                                        closeModal={closeModal}
+                                    />
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
