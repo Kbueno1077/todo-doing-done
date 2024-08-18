@@ -1,3 +1,4 @@
+"use client";
 import { persist } from "zustand/middleware";
 import { Ticket, User } from "@/utils/types";
 import { createStore } from "zustand";
@@ -11,6 +12,7 @@ export interface StoreProps {
     boards: any[];
     selectedBoardId: string;
     users: User[];
+    cursorType: "Ipad" | "Pointer";
 
     loadAllBoards: () => Promise<any>;
     loadTicketsFromBoard: (boardId: string) => Promise<any>;
@@ -20,7 +22,7 @@ export interface StoreProps {
     ) => Promise<any>;
 
     createTicket: (ticket: any, selectedUsers: User[]) => Promise<any>;
-    deleteTicket: (ticketId: string) => Promise<any>;
+    deleteTicket: (ticketid: string) => Promise<any>;
     updateTicket: (
         ticket: { newTicket: any; isUpdateNeeded: boolean },
         users: { selectedUsers: User[]; isUpdateNeeded: boolean },
@@ -29,6 +31,7 @@ export interface StoreProps {
 
     loadAllUsers: () => Promise<any>;
     setColumns: (columns: any) => void;
+    setCursorType: (cursorType: "Ipad" | "Pointer") => void;
 }
 
 export type TicketStore = ReturnType<typeof createTicketStore>;
@@ -39,6 +42,7 @@ type DefaultProps = {
     boards: any[];
     users: User[];
     tickets: Ticket[];
+    cursorType: "Ipad" | "Pointer";
 };
 type InitialProps = {};
 
@@ -61,6 +65,10 @@ export const createTicketStore = (initProps: InitialProps) => {
         boards: [],
         users: [],
         tickets: [],
+        cursorType:
+            document.getElementsByClassName("ipad-cursor").length > 0
+                ? "Ipad"
+                : "Pointer",
     };
 
     return createStore<StoreProps>()(
@@ -82,10 +90,18 @@ export const createTicketStore = (initProps: InitialProps) => {
                         columns: columns(state.columns),
                     }));
                 },
+
+                setCursorType: (cursorType: "Ipad" | "Pointer") => {
+                    set((state) => ({
+                        ...state,
+                        cursorType,
+                    }));
+                },
             }),
             {
-                name: "save-boards",
+                name: "save-boards-and-cursor",
                 partialize: (state) => ({
+                    cursorType: state.cursorType,
                     selectedBoardId: state.selectedBoardId,
                 }),
             }

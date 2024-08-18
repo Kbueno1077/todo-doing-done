@@ -1,28 +1,53 @@
 "use client";
 import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
-import { useStoreContext } from "@/store/useStoreContext";
-import React, { useState } from "react";
-import CreateBoard from "../CreateBoard/CreateBoard";
 import ThemeController from "@/components/ThemeController/ThemeController";
+import { useStoreContext } from "@/store/useStoreContext";
 import { showToast } from "@/utils/utils";
+import { disposeCursor, initCursor } from "ipad-cursor";
+import { useState } from "react";
+import CreateBoard from "../CreateBoard/CreateBoard";
+
+import { IconInnerShadowBottomRight, IconPointer } from "@tabler/icons-react";
 
 function Navbar() {
     const [isLoading, setIsLoading] = useState(false);
 
-    const { selectedBoardId, boards, loadTicketsFromBoard } = useStoreContext(
-        (s) => {
-            return {
-                selectedBoardId: s.selectedBoardId,
-                boards: s.boards,
-                loadTicketsFromBoard: s.loadTicketsFromBoard,
-            };
-        }
-    );
+    const {
+        selectedBoardId,
+        boards,
+        loadTicketsFromBoard,
+        cursorType,
+        setCursorType,
+    } = useStoreContext((s) => {
+        return {
+            selectedBoardId: s.selectedBoardId,
+            boards: s.boards,
+            cursorType: s.cursorType,
+            loadTicketsFromBoard: s.loadTicketsFromBoard,
+            setCursorType: s.setCursorType,
+        };
+    });
+    console.log("🚀 ~ Navbar ~ cursorType:", cursorType);
 
     const changeBoard = async (boardId: string) => {
         setIsLoading(true);
         await loadTicketsFromBoard(boardId);
         setIsLoading(false);
+    };
+
+    const initPointer = () => {
+        initCursor();
+        setCursorType("Ipad");
+        const cursors = document.getElementsByClassName("ipad-cursor");
+
+        if (cursors.length > 0) {
+            cursors[0].remove();
+        }
+    };
+
+    const disposePointer = () => {
+        disposeCursor();
+        setCursorType("Pointer");
     };
 
     return (
@@ -128,6 +153,23 @@ function Navbar() {
                         </svg>
                     </button>
                 </IpadCursorBlockWrapper>
+
+                {cursorType === "Ipad" ? (
+                    <IpadCursorBlockWrapper>
+                        <button
+                            className="btn btn-ghost"
+                            onClick={disposePointer}
+                        >
+                            <IconPointer size={20} />
+                        </button>
+                    </IpadCursorBlockWrapper>
+                ) : (
+                    <IpadCursorBlockWrapper>
+                        <button className="btn btn-ghost" onClick={initPointer}>
+                            <IconInnerShadowBottomRight size={20} />
+                        </button>
+                    </IpadCursorBlockWrapper>
+                )}
 
                 <IpadCursorBlockWrapper>
                     <button

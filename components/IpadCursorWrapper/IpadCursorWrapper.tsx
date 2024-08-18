@@ -1,5 +1,6 @@
 "use client";
 
+import { useStoreContext } from "@/store/useStoreContext";
 import { IpadCursorConfig } from "ipad-cursor";
 import { IPadCursorProvider, useIPadCursor } from "ipad-cursor/react";
 import React from "react";
@@ -20,6 +21,12 @@ function IpadCursorBlockWrapper({
     const config: IpadCursorConfig = {};
     const { customCursorStyle } = useIPadCursor();
 
+    const { cursorType } = useStoreContext((s) => {
+        return {
+            cursorType: s.cursorType,
+        };
+    });
+
     let style = {};
 
     if (Object.keys(styles).length > 0 && customCursorStyle) {
@@ -30,16 +37,24 @@ function IpadCursorBlockWrapper({
     }
 
     return (
-        <IPadCursorProvider config={config}>
-            <div
-                data-cursor={type}
-                data-cursor-style={style}
-                className={`[&_*]:cursor-none ${className}`}
-                {...props}
-            >
-                {children}
-            </div>
-        </IPadCursorProvider>
+        <>
+            {cursorType == "Ipad" ? (
+                <IPadCursorProvider config={config}>
+                    <div
+                        data-cursor={type}
+                        data-cursor-style={style}
+                        className={`[&_*]:cursor-none ${className}`}
+                        {...props}
+                    >
+                        {children}
+                    </div>
+                </IPadCursorProvider>
+            ) : (
+                <div className={`${className}`} {...props}>
+                    {children}
+                </div>
+            )}
+        </>
     );
 }
 

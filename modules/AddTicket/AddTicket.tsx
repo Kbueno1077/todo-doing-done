@@ -52,7 +52,10 @@ function AddTicket({ status }: AddTicketProps) {
         };
     });
 
-    const handleChange = (name: keyof CreateBoardFormData, value: string) => {
+    const handleFormChange = (
+        name: keyof CreateBoardFormData,
+        value: string
+    ) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
 
         // Validate the field
@@ -178,7 +181,7 @@ function AddTicket({ status }: AddTicketProps) {
                                             name="title"
                                             label="Title"
                                             value={formData.title}
-                                            onChange={handleChange}
+                                            onChange={handleFormChange}
                                             error={errors.title}
                                             placeholder="Title"
                                             disabled={isLoading}
@@ -198,8 +201,8 @@ function AddTicket({ status }: AddTicketProps) {
                                             schema={createBoardSchema}
                                             name="description"
                                             label="Description"
-                                            value={formData.title}
-                                            onChange={handleChange}
+                                            value={formData.description}
+                                            onChange={handleFormChange}
                                             error={errors.description}
                                             placeholder="Description"
                                             disabled={isLoading}

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import Column from "../Column/Column";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
+import { updateCursor } from "ipad-cursor";
 
 function MultipleColumnsExample() {
     const queryClient = useQueryClient();
@@ -34,7 +35,9 @@ function MultipleColumnsExample() {
         const boards = await loadAllBoards();
         const users = await loadAllUsers();
 
-        const localStorageBoardId = localStorage.getItem("save-boards");
+        const localStorageBoardId = localStorage.getItem(
+            "save-boards-and-cursor"
+        );
         const selectedBoardId = JSON.parse(localStorageBoardId ?? "{}").state
             .selectedBoardId;
 
@@ -63,14 +66,18 @@ function MultipleColumnsExample() {
 
     const onDragEnd = ({ source, destination }: DropResult) => {
         // Make sure we have a valid destination
-        if (destination === undefined || destination === null) return null;
+
+        if (destination === undefined || destination === null) {
+            return null;
+        }
 
         // Make sure we're actually moving the item
         if (
             source.droppableId === destination.droppableId &&
             destination.index === source.index
-        )
+        ) {
             return null;
+        }
 
         // Set start and end variables
 

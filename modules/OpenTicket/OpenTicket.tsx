@@ -8,15 +8,18 @@ import {
     IconArticle,
     IconH1,
     IconMessage,
-    IconStackPush,
+    IconStack2,
     IconTrash,
 } from "@tabler/icons-react";
 
 import Avatar from "@/components/Avatar/Avatar";
 import GroupedAvatars from "@/components/Avatar/GroupedAvatars";
+import ZodInput from "@/components/ZodInput/ZodInput";
+import ZodTextarea from "@/components/ZodTextarea/ZodTextarea";
 import { useStoreContext } from "@/store/useStoreContext";
 import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
+import { z } from "zod";
 import DeleteTicket from "./DeleteTicket";
 
 interface AddTicketProps {
@@ -24,24 +27,36 @@ interface AddTicketProps {
     index: number;
 }
 
+const createBoardSchema = z.object({
+    title: z.string().min(1, { message: "Ticket title is required" }),
+    description: z.string(),
+    comment: z.string(),
+});
+
+type CreateBoardFormData = z.infer<typeof createBoardSchema>;
+
 function OpenTicket({ ticket, index }: AddTicketProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingComments, setIsLoadingComments] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
 
-    const [title, setTitle] = useState(ticket.title || "");
-    const [description, setDescription] = useState(ticket.description || "");
-    const [priority, setPriority] = useState(ticket.priority || 0);
-
-    const [comment, setComment] = useState("");
     const [comments, setComments] = useState<Comment[] | []>([]);
+    const [priority, setPriority] = useState(ticket.priority || 0);
 
     const [selectedUsers, setSelectedUsers] = useState<User[]>(
         ticket.AssignedToTickets?.map((assigned) => assigned.Users) || []
     );
+
+    const [formData, setFormData] = useState<CreateBoardFormData>({
+        title: ticket.title || "",
+        description: ticket.description || "",
+        comment: "",
+    });
+    const [errors, setErrors] = useState<
+        Partial<Record<keyof CreateBoardFormData, string>>
+    >({});
 
     const toggleDelete = () => {
         setIsDeleteOpen(!isDeleteOpen);
@@ -54,6 +69,27 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
             selectedBoardId: s.selectedBoardId,
         };
     });
+
+    const handleFormChange = (
+        name: keyof CreateBoardFormData,
+        value: string
+    ) => {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        // Validate the field
+        const result = createBoardSchema.shape[name].safeParse(value);
+        if (!result.success) {
+            setErrors((prev) => ({
+                ...prev,
+                [name]: result.error.errors[0].message,
+            }));
+        } else {
+            setErrors((prev) => {
+                const { [name]: _, ...rest } = prev;
+                return rest;
+            });
+        }
+    };
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -99,13 +135,16 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
     }
 
     function closeModal() {
-        setDescription(ticket.description || "");
-        setTitle(ticket.title || "");
         setPriority(ticket.priority || 0);
         setSelectedUsers(
             ticket.AssignedToTickets?.map((assigned) => assigned.Users) || []
         );
-        setComment("");
+        setFormData({
+            title: ticket.title || "",
+            description: ticket.description || "",
+            comment: "",
+        });
+        setErrors({});
         setComments([]);
         setIsLoading(false);
         setIsLoadingComments(false);
@@ -113,11 +152,26 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
     }
 
     async function handleSubmit() {
+        const result = createBoardSchema.safeParse(formData);
+        if (!result.success) {
+            const newErrors: Partial<
+                Record<keyof CreateBoardFormData, string>
+            > = {};
+            result.error.issues.forEach((issue) => {
+                if (issue.path[0]) {
+                    newErrors[issue.path[0] as keyof CreateBoardFormData] =
+                        issue.message;
+                }
+            });
+            setErrors(newErrors);
+            return;
+        }
+
         setIsLoading(true);
 
         const isDataUpdateNeeded =
-            title !== ticket.title ||
-            description !== ticket.description ||
+            formData.title !== ticket.title ||
+            formData.description !== ticket.description ||
             priority !== ticket.priority;
 
         const isAssignedUpdateNeeded =
@@ -139,8 +193,8 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
 
         const newTicket = {
             id: ticket.id,
-            title: title,
-            description: description,
+            title: formData.title,
+            description: formData.description,
             priority: priority,
             status: "Todo",
             board_id: selectedBoardId,
@@ -149,7 +203,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         await updateTicket(
             { newTicket, isUpdateNeeded: isDataUpdateNeeded },
             { selectedUsers, isUpdateNeeded: isAssignedUpdateNeeded },
-            comment
+            formData.comment
         );
 
         setIsLoading(false);
@@ -167,7 +221,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                             <div className="flex items-center justify-between">
                                 <IpadCursorBlockWrapper type="text">
                                     <div className="flex gap-4 items-center">
-                                        <IconStackPush size={30} />
+                                        <IconStack2 size={30} />
                                         <h1 className="font-bold text-2xl">
                                             {ticket.title}
                                         </h1>
@@ -203,18 +257,16 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                 type="text"
                                                 className="w-full"
                                             >
-                                                <input
-                                                    type="text"
+                                                <ZodInput
+                                                    schema={createBoardSchema}
+                                                    name="title"
+                                                    label="Title"
+                                                    value={formData.title}
+                                                    onChange={handleFormChange}
+                                                    error={errors.title}
                                                     placeholder="Title"
                                                     disabled={isLoading}
                                                     className="input input-bordered w-full text-lg"
-                                                    value={title}
-                                                    onChange={(e) =>
-                                                        handleInputChange(
-                                                            e,
-                                                            setTitle
-                                                        )
-                                                    }
                                                 />
                                             </IpadCursorBlockWrapper>
                                         </div>
@@ -226,19 +278,18 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                 type="text"
                                                 className="w-full"
                                             >
-                                                <textarea
-                                                    rows={5}
-                                                    className="textarea textarea-bordered w-full text-lg"
+                                                <ZodTextarea
+                                                    schema={createBoardSchema}
+                                                    name="description"
+                                                    label="Description"
+                                                    value={formData.title}
+                                                    onChange={handleFormChange}
+                                                    error={errors.description}
                                                     placeholder="Description"
                                                     disabled={isLoading}
-                                                    value={description}
-                                                    onChange={(e) =>
-                                                        handleInputChange(
-                                                            e,
-                                                            setDescription
-                                                        )
-                                                    }
-                                                ></textarea>
+                                                    className="textarea textarea-bordered w-full text-lg"
+                                                    rows={5}
+                                                />
                                             </IpadCursorBlockWrapper>
                                         </div>
 
@@ -405,22 +456,21 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                             type="text"
                                             className="w-full"
                                         >
-                                            <textarea
-                                                rows={5}
-                                                className="textarea textarea-bordered w-full text-lg"
+                                            <ZodTextarea
+                                                schema={createBoardSchema}
+                                                name="comment"
+                                                label="Comment"
+                                                value={formData.comment}
+                                                onChange={handleFormChange}
+                                                error={errors.comment}
                                                 placeholder="Add comment"
                                                 disabled={
                                                     isLoading ||
                                                     isLoadingComments
                                                 }
-                                                value={comment}
-                                                onChange={(e) =>
-                                                    handleInputChange(
-                                                        e,
-                                                        setComment
-                                                    )
-                                                }
-                                            ></textarea>
+                                                className="textarea textarea-bordered w-full text-lg"
+                                                rows={5}
+                                            />
                                         </IpadCursorBlockWrapper>
                                     </div>
 
@@ -430,19 +480,21 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                 <span className="">
                                                     Created at:{" "}
                                                 </span>
-                                                {format(ticket.createdAt, {
-                                                    date: "full",
-                                                    time: "short",
-                                                })}
+                                                {ticket.createdAt &&
+                                                    format(ticket.createdAt, {
+                                                        date: "full",
+                                                        time: "short",
+                                                    })}
                                             </p>
                                             <p className="text-xs font-bold italic">
                                                 <span className="">
                                                     Updated at:{" "}
                                                 </span>
-                                                {format(ticket.updatedAt, {
-                                                    date: "full",
-                                                    time: "short",
-                                                })}
+                                                {ticket.updatedAt &&
+                                                    format(ticket.updatedAt, {
+                                                        date: "full",
+                                                        time: "short",
+                                                    })}
                                             </p>
                                         </div>
 
