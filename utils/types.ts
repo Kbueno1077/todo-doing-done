@@ -4,33 +4,34 @@ export interface Ticket {
     description?: string;
     AssignedToTickets?: AssignedToTickets[] | never[];
     priority?: number;
+    status?: string;
     Comments?: Comment[] | never[];
-    createdAt?: string;
-    updatedAt?: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface Comment {
     id: string;
     Users: User;
     content: string;
-    createdAt: string;
-    updatedAt: string;
+    created_at: string;
+    updated_at: string;
     author_id: string;
     ticket_id: string;
 }
 
 export interface AssignedToTickets {
     id: string;
-    createdAt: string;
-    updatedAt: string;
+    created_at: string;
+    updated_at: string;
     ticket_id: string;
     user_id: string;
     Users: User;
 }
 
 export interface User {
-    createdAt: string;
-    updatedAt: string;
+    created_at: string;
+    updated_at: string;
     id: string;
     name: string;
     img?: string;

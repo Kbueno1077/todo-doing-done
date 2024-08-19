@@ -7,7 +7,6 @@ import { useState } from "react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import Column from "../Column/Column";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
-import { updateCursor } from "ipad-cursor";
 
 function MultipleColumnsExample() {
     const queryClient = useQueryClient();

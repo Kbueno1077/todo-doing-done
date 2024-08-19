@@ -5,6 +5,7 @@ import { createStore } from "zustand";
 import { createBoardSlice } from "./slices/boardSlice";
 import { createTicketSlice } from "./slices/ticketSlice";
 import { createUserSlice } from "./slices/userSlice";
+import { isMobileOrTablet, showToast } from "@/utils/utils";
 
 export interface StoreProps {
     // STATES
@@ -65,10 +66,11 @@ export const createTicketStore = (initProps: InitialProps) => {
         boards: [],
         users: [],
         tickets: [],
-        cursorType:
-            document.getElementsByClassName("ipad-cursor").length > 0
-                ? "Ipad"
-                : "Pointer",
+        cursorType: isMobileOrTablet()
+            ? "Pointer"
+            : document.getElementsByClassName("ipad-cursor").length > 0
+            ? "Ipad"
+            : "Pointer",
     };
 
     return createStore<StoreProps>()(
@@ -92,10 +94,22 @@ export const createTicketStore = (initProps: InitialProps) => {
                 },
 
                 setCursorType: (cursorType: "Ipad" | "Pointer") => {
-                    set((state) => ({
-                        ...state,
-                        cursorType,
-                    }));
+                    if (isMobileOrTablet()) {
+                        set((state) => ({
+                            ...state,
+                            cursorType: "Pointer",
+                        }));
+
+                        showToast(
+                            "Ipad cursor is not supported on mobile devices",
+                            "info"
+                        );
+                    } else {
+                        set((state) => ({
+                            ...state,
+                            cursorType,
+                        }));
+                    }
                 },
             }),
             {

@@ -14,7 +14,7 @@ const Column: React.FC<ColumnProps> = ({ id, list }) => {
         <Droppable droppableId={id}>
             {(provided) => (
                 <div className="flex flex-col">
-                    <div className="flex justify-between items-center bg-primary rounded-md px-2 py-2 ">
+                    <div className="flex justify-between items-center bg-primary text-primary-content rounded-md px-2 py-2 ">
                         <IpadCursorBlockWrapper type="text">
                             <h2 className="uppercase font-bold">{id}</h2>
                         </IpadCursorBlockWrapper>

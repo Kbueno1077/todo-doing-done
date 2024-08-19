@@ -70,10 +70,12 @@ function CreateBoard() {
     };
 
     function openModal() {
+        document.addEventListener("keydown", closeModal);
         setIsOpen(true);
     }
 
     function closeModal() {
+        document.removeEventListener("keydown", closeModal);
         setSelectedUsers([]);
         setErrors({});
         setFormData({ name: "" });
@@ -114,9 +116,9 @@ function CreateBoard() {
             </IpadCursorBlockWrapper>
 
             {isOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-80 z-[9999]">
-                    <div className="flex h-full justify-center items-center ">
-                        <div className="w-3/4 max-w-[1280px] bg-base-300  rounded-md p-8 flex flex-col mt-2">
+                <div className="fixed inset-0 bg-black bg-opacity-90 z-[9999] text-base-content overflow-y-auto">
+                    <div className="flex min-h-full p-3 md:p-0 justify-center items-center">
+                        <div className="w-full sm:w-3/4 max-w-[1280px] bg-base-300 rounded-md p-4 sm:p-8 flex flex-col my-4">
                             <IpadCursorBlockWrapper type="text">
                                 <div className="flex gap-4 items-center py-4">
                                     <IconBrandTrello size={30} />

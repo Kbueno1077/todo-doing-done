@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { themeChange } from "theme-change";
-import { IconChevronDown } from "@tabler/icons-react";
+import { IconChevronDown, IconPalette } from "@tabler/icons-react";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 
 const themes = [
@@ -29,6 +29,7 @@ const themes = [
     "cmyk",
     "autumn",
     "business",
+    "lofi",
     "acid",
     "lemonade",
     "night",
@@ -58,11 +59,15 @@ function ThemeController() {
 
     return (
         <div className="flex items-center space-x-4">
-            <div className="dropdown">
+            <div className="dropdown dropdown-end">
                 <IpadCursorBlockWrapper>
-                    <div tabIndex={0} role="button" className="btn">
+                    <div
+                        tabIndex={0}
+                        role="button"
+                        className="btn bg-primary text-primary-content hover:text-primary"
+                    >
                         <div className="flex items-center space-x-2">
-                            <span>Theme</span> <IconChevronDown size={20} />
+                            <IconPalette size={20} />
                         </div>
                     </div>
                 </IpadCursorBlockWrapper>

@@ -58,3 +58,29 @@ function getAlertClass(type: string) {
             return "";
     }
 }
+
+export function isMobileOrTablet() {
+    // Check for touch capability
+    const hasTouchScreen =
+        "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+    // Check screen size
+    const isSmallScreen = window.innerWidth <= 1024; // Adjust this value as needed
+
+    // Check user agent string for common mobile/tablet keywords
+    const userAgent = navigator.userAgent.toLowerCase();
+    const mobileKeywords = [
+        "android",
+        "webos",
+        "iphone",
+        "ipad",
+        "ipod",
+        "blackberry",
+        "windows phone",
+    ];
+    const isMobileAgent = mobileKeywords.some((keyword) =>
+        userAgent.includes(keyword)
+    );
+
+    return hasTouchScreen && (isSmallScreen || isMobileAgent);
+}

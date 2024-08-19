@@ -36,17 +36,23 @@ const createBoardSchema = z.object({
 type CreateBoardFormData = z.infer<typeof createBoardSchema>;
 
 function OpenTicket({ ticket, index }: AddTicketProps) {
+    console.log("🚀 ~ OpenTicket ~ ticket:", ticket);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingComments, setIsLoadingComments] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
+    const [isStatusDropDownOpen, setIsStatusDropDownOpen] = useState(false);
 
     const [comments, setComments] = useState<Comment[] | []>([]);
     const [priority, setPriority] = useState(ticket.priority || 0);
 
     const [selectedUsers, setSelectedUsers] = useState<User[]>(
         ticket.AssignedToTickets?.map((assigned) => assigned.Users) || []
+    );
+
+    const [selectedStatus, setSelectedStatus] = useState<string>(
+        ticket.status || "Todo"
     );
 
     const [formData, setFormData] = useState<CreateBoardFormData>({
@@ -62,13 +68,16 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         setIsDeleteOpen(!isDeleteOpen);
     };
 
-    const { users, updateTicket, selectedBoardId } = useStoreContext((s) => {
-        return {
-            users: s.users,
-            updateTicket: s.updateTicket,
-            selectedBoardId: s.selectedBoardId,
-        };
-    });
+    const { users, updateTicket, selectedBoardId, columns } = useStoreContext(
+        (s) => {
+            return {
+                users: s.users,
+                columns: s.columns,
+                updateTicket: s.updateTicket,
+                selectedBoardId: s.selectedBoardId,
+            };
+        }
+    );
 
     const handleFormChange = (
         name: keyof CreateBoardFormData,
@@ -115,7 +124,14 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         });
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+            closeModal();
+        }
+    };
+
     async function openModal() {
+        document.addEventListener("keydown", handleKeyDown);
         setIsLoadingComments(true);
 
         const supabase = createClient();
@@ -135,6 +151,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
     }
 
     function closeModal() {
+        document.removeEventListener("keydown", handleKeyDown);
         setPriority(ticket.priority || 0);
         setSelectedUsers(
             ticket.AssignedToTickets?.map((assigned) => assigned.Users) || []
@@ -172,7 +189,8 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         const isDataUpdateNeeded =
             formData.title !== ticket.title ||
             formData.description !== ticket.description ||
-            priority !== ticket.priority;
+            priority !== ticket.priority ||
+            selectedStatus !== ticket.status;
 
         const isAssignedUpdateNeeded =
             // Ensure both arrays exist and have a length property
@@ -196,7 +214,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
             title: formData.title,
             description: formData.description,
             priority: priority,
-            status: "Todo",
+            status: selectedStatus,
             board_id: selectedBoardId,
         };
 
@@ -215,9 +233,9 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
             <IpadItem onClick={openModal} ticket={ticket} index={index} />
 
             {isOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-80 z-[9999]">
-                    <div className="flex h-full justify-center items-center">
-                        <div className="w-3/4 max-w-[1280px] bg-base-300 rounded-md p-8 flex flex-col mt-2">
+                <div className="fixed inset-0 bg-black bg-opacity-90 z-[9999] text-base-content overflow-y-auto">
+                    <div className="flex min-h-full p-3 md:p-0 justify-center items-center">
+                        <div className="w-full sm:w-3/4 max-w-[1280px] bg-base-300 rounded-md p-4 sm:p-8 flex flex-col my-4">
                             <div className="flex items-center justify-between">
                                 <IpadCursorBlockWrapper type="text">
                                     <div className="flex gap-4 items-center">
@@ -329,6 +347,68 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                     </div>
 
                                     <div>
+                                        <div className="dropdown ml-2">
+                                            <div className="flex gap-2 items-center">
+                                                <button
+                                                    className="btn m-1"
+                                                    disabled={isLoading}
+                                                    onClick={() =>
+                                                        setIsStatusDropDownOpen(
+                                                            !isStatusDropDownOpen
+                                                        )
+                                                    }
+                                                >
+                                                    Status: {selectedStatus}
+                                                </button>
+                                            </div>
+
+                                            {isStatusDropDownOpen && (
+                                                <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                                    {Object.entries(
+                                                        columns
+                                                    ).map((column) => (
+                                                        <li key={column[0]}>
+                                                            <IpadCursorBlockWrapper>
+                                                                <label className="flex items-center space-x-2">
+                                                                    <button
+                                                                        className="w-full flex items-center space-x-2 "
+                                                                        onClick={() =>
+                                                                            setSelectedStatus(
+                                                                                column[0]
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <input
+                                                                            type="radio"
+                                                                            name="column-radio"
+                                                                            className="radio radio-primary"
+                                                                            checked={
+                                                                                selectedStatus ===
+                                                                                column[0]
+                                                                            }
+                                                                            onChange={() =>
+                                                                                setSelectedStatus(
+                                                                                    column[0]
+                                                                                )
+                                                                            }
+                                                                            value={
+                                                                                column[0]
+                                                                            }
+                                                                        />
+                                                                        <span className="label-text">
+                                                                            {
+                                                                                column[0]
+                                                                            }
+                                                                        </span>
+                                                                    </button>
+                                                                </label>
+                                                            </IpadCursorBlockWrapper>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
                                         <div className="dropdown">
                                             <div className="flex gap-2 items-center">
                                                 <button
@@ -358,7 +438,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                     {users.map((user) => (
                                                         <li key={user.id}>
                                                             <IpadCursorBlockWrapper>
-                                                                <label className="flex items-center space-x-2 ">
+                                                                <label className="flex items-center space-x-2">
                                                                     <button
                                                                         className="w-full flex items-center space-x-2 "
                                                                         onClick={() =>
@@ -480,8 +560,8 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                 <span className="">
                                                     Created at:{" "}
                                                 </span>
-                                                {ticket.createdAt &&
-                                                    format(ticket.createdAt, {
+                                                {ticket.created_at &&
+                                                    format(ticket.created_at, {
                                                         date: "full",
                                                         time: "short",
                                                     })}
@@ -490,8 +570,8 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                 <span className="">
                                                     Updated at:{" "}
                                                 </span>
-                                                {ticket.updatedAt &&
-                                                    format(ticket.updatedAt, {
+                                                {ticket.updated_at &&
+                                                    format(ticket.updated_at, {
                                                         date: "full",
                                                         time: "short",
                                                     })}
