@@ -2,27 +2,25 @@
 import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
 import ThemeController from "@/components/ThemeController/ThemeController";
 import { useStoreContext } from "@/store/useStoreContext";
-import { showToast } from "@/utils/utils";
 import { disposeCursor, initCursor } from "ipad-cursor";
-import { useState } from "react";
-import CreateBoard from "../CreateBoard/CreateBoard";
+import CreateBoard from "@/modules/CreateBoard/CreateBoard";
 
 import {
+    IconAlignJustified,
+    IconFilter,
     IconInnerShadowBottomRight,
     IconPointer,
-    IconFilter,
-    IconAlignJustified,
 } from "@tabler/icons-react";
+import Filters from "@/modules/Filters/Filters";
 
 function Navbar() {
-    const [isLoading, setIsLoading] = useState(false);
-
     const {
         selectedBoardId,
         boards,
         loadTicketsFromBoard,
         cursorType,
         setCursorType,
+        isGlobalLoading,
     } = useStoreContext((s) => {
         return {
             selectedBoardId: s.selectedBoardId,
@@ -30,13 +28,14 @@ function Navbar() {
             cursorType: s.cursorType,
             loadTicketsFromBoard: s.loadTicketsFromBoard,
             setCursorType: s.setCursorType,
+            isGlobalLoading: s.isGlobalLoading,
         };
     });
 
     const changeBoard = async (boardId: string) => {
-        setIsLoading(true);
-        await loadTicketsFromBoard(boardId);
-        setIsLoading(false);
+        if (boardId !== selectedBoardId) {
+            await loadTicketsFromBoard(boardId);
+        }
     };
 
     const initPointer = () => {
@@ -65,7 +64,7 @@ function Navbar() {
                                 role="button"
                                 className="hidden sm:block btn btn-ghost text-xl pt-2"
                             >
-                                {selectedBoardId && !isLoading
+                                {selectedBoardId && !isGlobalLoading
                                     ? boards.find(
                                           (b) => b.id === selectedBoardId
                                       )?.name
@@ -112,11 +111,7 @@ function Navbar() {
             </div>
 
             <div className="navbar-end sm:mr-4 sm:gap-2">
-                <IpadCursorBlockWrapper>
-                    <button className="btn btn-ghost ">
-                        <IconFilter size={20} />
-                    </button>
-                </IpadCursorBlockWrapper>
+                <Filters />
 
                 {cursorType === "Ipad" ? (
                     <IpadCursorBlockWrapper>
@@ -135,7 +130,7 @@ function Navbar() {
                     </IpadCursorBlockWrapper>
                 )}
 
-                <IpadCursorBlockWrapper>
+                {/* <IpadCursorBlockWrapper>
                     <button
                         onClick={() => {
                             showToast("Notification");
@@ -160,7 +155,7 @@ function Navbar() {
                             <span className="badge badge-xs badge-primary indicator-item"></span>
                         </div>
                     </button>
-                </IpadCursorBlockWrapper>
+                </IpadCursorBlockWrapper> */}
 
                 <ThemeController />
             </div>

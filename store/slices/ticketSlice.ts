@@ -5,6 +5,10 @@ import { showToast } from "@/utils/utils";
 const supabase = createClient();
 
 export const createTicketSlice = (set: any, get: any) => ({
+    // STATE
+    tickets: [],
+
+    //   ACTIONS
     createTicket: async (
         ticket: any,
         selectedUsers: User[]
@@ -35,6 +39,39 @@ export const createTicketSlice = (set: any, get: any) => ({
             const errorMessage = error?.message
                 ? error?.message
                 : "An unexpected error occurred while creating the ticket";
+
+            showToast(errorMessage, "Error");
+            return error instanceof Error
+                ? error
+                : new Error("An unknown error occurred");
+        }
+    },
+
+    moveTicket: async (
+        ticketId: string,
+        newStatus: string
+    ): Promise<any | Error> => {
+        try {
+            const { data, error } = await supabase
+                .from("Tickets") // Replace 'tickets' with your actual table name
+                .update({ status: newStatus })
+                .eq("id", ticketId)
+                .select();
+
+            if (error) throw error;
+
+            if (!data) {
+                throw new Error("Ticket could not be updated");
+            }
+
+            return data;
+        } catch (error: any) {
+            console.error("Error moving ticket:", error);
+            const errorMessage = error?.message
+                ? error?.message
+                : "An unexpected error occurred while moving the ticket";
+
+            await get().loadTicketsFromBoard(get().selectedBoardId);
 
             showToast(errorMessage, "Error");
             return error instanceof Error

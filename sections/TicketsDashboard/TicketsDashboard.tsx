@@ -1,14 +1,14 @@
 "use client";
 
+import Column from "@/components/Column/Column";
+import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
 import { useStoreContext } from "@/store/useStoreContext";
 import { IconPlus } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import Column from "../Column/Column";
-import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 
-function MultipleColumnsExample() {
+function TicketsDashboard() {
     const queryClient = useQueryClient();
     const [isLoading, setIsLoading] = useState(true);
 
@@ -18,6 +18,8 @@ function MultipleColumnsExample() {
         loadAllBoards,
         columns,
         setColumns,
+        moveTicket,
+        isGlobalLoading,
     } = useStoreContext((s) => {
         return {
             columns: s.columns,
@@ -25,6 +27,8 @@ function MultipleColumnsExample() {
             loadTicketsFromBoard: s.loadTicketsFromBoard,
             loadAllUsers: s.loadAllUsers,
             loadAllBoards: s.loadAllBoards,
+            moveTicket: s.moveTicket,
+            isGlobalLoading: s.isGlobalLoading,
         };
     });
 
@@ -79,10 +83,7 @@ function MultipleColumnsExample() {
         }
 
         // Set start and end variables
-
-        //@ts-ignore
         const start = columns[source.droppableId];
-        //@ts-ignore
         const end = columns[destination.droppableId];
 
         // If start is the same as end, we're in the same column
@@ -101,6 +102,11 @@ function MultipleColumnsExample() {
                 id: start.id,
                 list: newList,
             };
+
+            const movedTicket = columns[source.droppableId].list[source.index];
+            const newStatus = destination.droppableId;
+
+            moveTicket(movedTicket.id, newStatus);
 
             // Update the state
             setColumns((state) => ({ ...state, [newCol.id]: newCol }));
@@ -130,6 +136,11 @@ function MultipleColumnsExample() {
                 list: newEndList,
             };
 
+            const movedTicket = columns[source.droppableId].list[source.index];
+            const newStatus = destination.droppableId;
+
+            moveTicket(movedTicket.id, newStatus);
+
             // Update the state
             setColumns((state) => ({
                 ...state,
@@ -142,32 +153,20 @@ function MultipleColumnsExample() {
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div
-                style={{
-                    display: "grid",
-                    overflow: "auto",
-                    gridTemplateColumns:
-                        "repeat(auto-fill, minmax(100px, 350px))",
-                    width: "100%",
-                    gap: "8px",
-                    flexGrow: 1,
-                }}
-            >
-                {isLoading ? (
+            <div className="grid overflow-auto w-full gap-2 flex-grow grid-cols-[repeat(auto-fill,minmax(100px,350px))]">
+                {isLoading || isGlobalLoading ? (
                     <>
-                        {Object.values(columns).map((col) => (
-                            //@ts-ignore
+                        {Object.values(columns).map((_) => (
                             <div className="skeleton h-full w-full"></div>
                         ))}
                     </>
                 ) : (
-                    Object.values(columns).map((col) => (
-                        //@ts-ignore
+                    Object.values(columns).map((col: any) => (
                         <Column id={col.id} list={col.list} key={col.id} />
                     ))
                 )}
 
-                {!isLoading && (
+                {!isLoading && !isGlobalLoading && (
                     <div>
                         <IpadCursorBlockWrapper>
                             <button className="btn rounded-md flex-grow-0 w-full">
@@ -182,4 +181,4 @@ function MultipleColumnsExample() {
     );
 }
 
-export default MultipleColumnsExample;
+export default TicketsDashboard;

@@ -1,11 +1,13 @@
 "use client";
+
 import { persist } from "zustand/middleware";
-import { Ticket, User } from "@/utils/types";
+import { Filter, Ticket, User } from "@/utils/types";
 import { createStore } from "zustand";
 import { createBoardSlice } from "./slices/boardSlice";
 import { createTicketSlice } from "./slices/ticketSlice";
 import { createUserSlice } from "./slices/userSlice";
 import { isMobileOrTablet, showToast } from "@/utils/utils";
+import { createFiltersSlice } from "./slices/filtersSlice";
 
 export interface StoreProps {
     // STATES
@@ -14,7 +16,10 @@ export interface StoreProps {
     selectedBoardId: string;
     users: User[];
     cursorType: "Ipad" | "Pointer";
+    isGlobalLoading: boolean;
+    filters: Filter;
 
+    //Boards
     loadAllBoards: () => Promise<any>;
     loadTicketsFromBoard: (boardId: string) => Promise<any>;
     createBoardAndAddMembers: (
@@ -22,7 +27,9 @@ export interface StoreProps {
         selectedUsers: User[]
     ) => Promise<any>;
 
+    //Tickets
     createTicket: (ticket: any, selectedUsers: User[]) => Promise<any>;
+    moveTicket: (ticketId: string, status: string) => Promise<any>;
     deleteTicket: (ticketid: string) => Promise<any>;
     updateTicket: (
         ticket: { newTicket: any; isUpdateNeeded: boolean },
@@ -30,20 +37,25 @@ export interface StoreProps {
         comment: string
     ) => Promise<any>;
 
+    //Filters
+    applyFilters: (filters: Filter) => void;
+    resetFilters: () => void;
+
+    //Users
     loadAllUsers: () => Promise<any>;
+
+    //Misc
     setColumns: (columns: any) => void;
+    setIsLoading: (isLoading: boolean) => void;
     setCursorType: (cursorType: "Ipad" | "Pointer") => void;
 }
 
 export type TicketStore = ReturnType<typeof createTicketStore>;
 
 type DefaultProps = {
-    selectedBoardId: string;
     columns: any;
-    boards: any[];
-    users: User[];
-    tickets: Ticket[];
     cursorType: "Ipad" | "Pointer";
+    isGlobalLoading: boolean;
 };
 type InitialProps = {};
 
@@ -61,11 +73,8 @@ export const initialColumns = {
 
 export const createTicketStore = (initProps: InitialProps) => {
     const DEFAULT_PROPS: DefaultProps = {
-        selectedBoardId: "",
         columns: initialColumns,
-        boards: [],
-        users: [],
-        tickets: [],
+        isGlobalLoading: false,
         cursorType: isMobileOrTablet()
             ? "Pointer"
             : document.getElementsByClassName("ipad-cursor").length > 0
@@ -84,8 +93,16 @@ export const createTicketStore = (initProps: InitialProps) => {
                 ...createTicketSlice(set, get),
                 ...createBoardSlice(set, get),
                 ...createUserSlice(set, get),
+                ...createFiltersSlice(set, get),
 
                 //   ACTIONS
+                setIsLoading: (isLoading: boolean) => {
+                    set((state) => ({
+                        ...state,
+                        isGlobalLoading: isLoading,
+                    }));
+                },
+
                 setColumns: (columns: any) => {
                     set((state) => ({
                         ...state,

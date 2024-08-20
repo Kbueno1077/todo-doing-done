@@ -44,6 +44,15 @@ export function showToast(message: string, type = "") {
     }
 }
 
+export const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    setter: React.Dispatch<React.SetStateAction<string | number>>
+) => {
+    const value =
+        e.target.type === "number" ? parseInt(e.target.value) : e.target.value;
+    setter(value);
+};
+
 function getAlertClass(type: string) {
     switch (type) {
         case "info":

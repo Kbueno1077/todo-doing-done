@@ -6,8 +6,14 @@ import { User } from "@/utils/types";
 const supabase = createClient();
 
 export const createBoardSlice = (set: any, get: any) => ({
+    // STATE
+    selectedBoardId: "",
+    boards: [],
+
+    //   ACTIONS
     loadAllBoards: async () => {
         try {
+            get().setIsLoading(true);
             const { data, error } = await supabase
                 .from("Boards")
                 .select("*, BoardMembership(*, Users(*))");
@@ -23,6 +29,7 @@ export const createBoardSlice = (set: any, get: any) => ({
                 boards: data || [],
             }));
 
+            get().setIsLoading(false);
             return data;
         } catch (error: any) {
             console.error("Error loading boards:", error);
@@ -30,6 +37,7 @@ export const createBoardSlice = (set: any, get: any) => ({
                 ? error?.message
                 : "An unexpected error occurred while loading boards";
             showToast(errorMessage, "Error");
+            get().setIsLoading(false);
 
             return error instanceof Error
                 ? error
@@ -39,6 +47,7 @@ export const createBoardSlice = (set: any, get: any) => ({
 
     loadTicketsFromBoard: async (boardId: string) => {
         try {
+            get().setIsLoading(true);
             const initalColumnsInit = deepClone(initialColumns);
 
             set((state) => ({
@@ -63,11 +72,12 @@ export const createBoardSlice = (set: any, get: any) => ({
 
             set((state) => ({
                 ...state,
-                tickets: groupedData,
+                tickets: data,
                 columns: { ...initalColumnsInit, ...groupedData },
                 selectedBoardId: boardId,
             }));
 
+            get().setIsLoading(false);
             return groupedData;
         } catch (error: any) {
             console.error("Error loading tickets:", error);
@@ -75,6 +85,7 @@ export const createBoardSlice = (set: any, get: any) => ({
                 ? error?.message
                 : "An unexpected error occurred while loading tickets";
             showToast(errorMessage, "Error");
+            get().setIsLoading(false);
 
             return error instanceof Error
                 ? error
@@ -87,6 +98,7 @@ export const createBoardSlice = (set: any, get: any) => ({
         selectedUsers: User[]
     ): Promise<any | Error> => {
         try {
+            get().setIsLoading(true);
             const { data, error } = await supabase.rpc(
                 "create_board_and_add_members",
                 {
@@ -108,6 +120,7 @@ export const createBoardSlice = (set: any, get: any) => ({
             await get().loadTicketsFromBoard(newBoardId);
 
             showToast("Board created successfully", "success");
+            get().setIsLoading(false);
 
             return { success: true };
         } catch (error: any) {
@@ -116,6 +129,7 @@ export const createBoardSlice = (set: any, get: any) => ({
                 ? error?.message
                 : "An unexpected error occurred while creating the board";
             showToast(errorMessage, "Error");
+            get().setIsLoading(false);
 
             return error instanceof Error
                 ? error

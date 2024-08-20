@@ -4,6 +4,10 @@ import { showToast } from "@/utils/utils";
 const supabase = createClient();
 
 export const createUserSlice = (set: any, get: any) => ({
+    // STATE
+    users: [],
+
+    //   ACTIONS
     loadAllUsers: async () => {
         try {
             const { data, error } = await supabase.from("Users").select("*");

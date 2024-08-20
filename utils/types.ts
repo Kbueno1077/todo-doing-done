@@ -51,3 +51,13 @@ export interface GroupedItem {
     id: string;
     list: Item[];
 }
+
+export interface Filter {
+    status?: string[];
+    priority?: number;
+    priorityRange?: string;
+    assignedTo?: User[];
+    created_at?: string;
+    updated_at?: string;
+    operand?: string;
+}

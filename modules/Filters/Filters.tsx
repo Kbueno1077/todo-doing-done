@@ -3,75 +3,38 @@
 import Avatar from "@/components/Avatar/Avatar";
 import GroupedAvatars from "@/components/Avatar/GroupedAvatars";
 import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
-import ZodInput from "@/components/ZodInput/ZodInput";
-import ZodTextarea from "@/components/ZodTextarea/ZodTextarea";
 import { useStoreContext } from "@/store/useStoreContext";
 import { User } from "@/utils/types";
-import {
-    IconArticle,
-    IconH1,
-    IconPlus,
-    IconStackPush,
-} from "@tabler/icons-react";
+import { IconFilter } from "@tabler/icons-react";
 
 import { useState } from "react";
-import { z } from "zod";
 
-interface AddTicketProps {
-    status: string;
-}
-const createBoardSchema = z.object({
-    title: z.string().min(1, { message: "Ticket title is required" }),
-    description: z.string(),
-});
-
-type CreateBoardFormData = z.infer<typeof createBoardSchema>;
-
-function AddTicket({ status }: AddTicketProps) {
+function Filters() {
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+
+    const { users, filters, applyFilters, resetFilters, columns } =
+        useStoreContext((s) => {
+            return {
+                users: s.users,
+                filters: s.filters,
+                applyFilters: s.applyFilters,
+                resetFilters: s.resetFilters,
+                columns: s.columns,
+            };
+        });
+
+    console.log("🚀 ~ Filters ~ filters:", filters);
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
+    const [isStatusDropDownOpen, setIsStatusDropDownOpen] = useState(false);
 
-    const [priority, setPriority] = useState(0);
-
-    const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
-
-    const [formData, setFormData] = useState<CreateBoardFormData>({
-        title: "",
-        description: "",
-    });
-    const [errors, setErrors] = useState<
-        Partial<Record<keyof CreateBoardFormData, string>>
-    >({});
-
-    const { createTicket, selectedBoardId, users } = useStoreContext((s) => {
-        return {
-            createTicket: s.createTicket,
-            selectedBoardId: s.selectedBoardId,
-            users: s.users,
-        };
-    });
-
-    const handleFormChange = (
-        name: keyof CreateBoardFormData,
-        value: string
-    ) => {
-        setFormData((prev) => ({ ...prev, [name]: value }));
-
-        // Validate the field
-        const result = createBoardSchema.shape[name].safeParse(value);
-        if (!result.success) {
-            setErrors((prev) => ({
-                ...prev,
-                [name]: result.error.errors[0].message,
-            }));
-        } else {
-            setErrors((prev) => {
-                const { [name]: _, ...rest } = prev;
-                return rest;
-            });
-        }
-    };
+    const [priority, setPriority] = useState(filters.priority || -1);
+    const [selectedUsers, setSelectedUsers] = useState<User[]>(
+        filters.assignedTo || []
+    );
+    const [selectedStatus, setSelectedStatus] = useState<string[]>(
+        filters.status || []
+    );
 
     const toggleUser = (user: User) => {
         setSelectedUsers((prevSelected) => {
@@ -86,63 +49,56 @@ function AddTicket({ status }: AddTicketProps) {
         });
     };
 
+    const toggleStatus = (Status: string) => {
+        setSelectedStatus((prevSelected) => {
+            const isCurrentlySelected = prevSelected.some((u) => u === Status);
+            const newSelected = isCurrentlySelected
+                ? prevSelected.filter((u) => u !== Status)
+                : [...prevSelected, Status];
+
+            return newSelected;
+        });
+    };
+
     function openModal() {
         document.addEventListener("keydown", closeModal);
         setIsOpen(true);
     }
 
-    function closeModal() {
-        document.removeEventListener("keydown", closeModal);
-        setPriority(0);
-        setErrors({});
-        setFormData({
-            title: "",
-            description: "",
-        });
-        setIsLoading(false);
-        setSelectedUsers([]);
-        setIsOpen(false);
-    }
-
-    const handleSubmit = async () => {
-        const result = createBoardSchema.safeParse(formData);
-        if (!result.success) {
-            const newErrors: Partial<
-                Record<keyof CreateBoardFormData, string>
-            > = {};
-            result.error.issues.forEach((issue) => {
-                if (issue.path[0]) {
-                    newErrors[issue.path[0] as keyof CreateBoardFormData] =
-                        issue.message;
-                }
-            });
-            setErrors(newErrors);
-            return;
-        }
-
-        setIsLoading(true);
-
-        const ticket = {
-            title: formData.title,
-            description: formData.description,
-            priority: priority,
-            status,
-            board_id: selectedBoardId,
-        };
-
-        await createTicket(ticket, selectedUsers);
-        setIsLoading(false);
+    const handleResetFilters = async () => {
+        resetFilters();
+        setPriority(filters.priority || -1);
+        setSelectedUsers(filters.assignedTo || []);
+        setSelectedStatus(filters.status || []);
         closeModal();
     };
+
+    const handleSubmit = async () => {
+        if (
+            priority > -1 &&
+            selectedUsers.length > 0 &&
+            selectedStatus.length > 0
+        ) {
+            applyFilters({
+                priority,
+                assignedTo: selectedUsers,
+                status: selectedStatus,
+            });
+        }
+
+        closeModal();
+    };
+
+    function closeModal() {
+        document.removeEventListener("keydown", closeModal);
+        setIsOpen(false);
+    }
 
     return (
         <>
             <IpadCursorBlockWrapper>
-                <button
-                    onClick={openModal}
-                    className="btn btn-square rounded-md btn-sm"
-                >
-                    <IconPlus size={20} />
+                <button className="btn btn-ghost" onClick={openModal}>
+                    <IconFilter size={20} />
                 </button>
             </IpadCursorBlockWrapper>
 
@@ -152,88 +108,100 @@ function AddTicket({ status }: AddTicketProps) {
                         <div className="w-full sm:w-3/4 max-w-[1280px] bg-base-300 rounded-md p-4 sm:p-8 flex flex-col my-4">
                             <IpadCursorBlockWrapper type="text">
                                 <div className="flex gap-4 items-center py-4">
-                                    <IconStackPush size={30} />
+                                    <IconFilter size={30} />
                                     <h1 className="font-bold text-2xl">
-                                        New Ticket
+                                        Apply Filters
                                     </h1>
                                 </div>
                             </IpadCursorBlockWrapper>
 
                             <div className="flex flex-col gap-4 py-4">
-                                <div className="flex gap-4">
-                                    <IconH1 size={30} />
-
-                                    <IpadCursorBlockWrapper
-                                        type="text"
-                                        className="w-full"
-                                    >
-                                        <ZodInput
-                                            schema={createBoardSchema}
-                                            name="title"
-                                            label="Title"
-                                            value={formData.title}
-                                            onChange={handleFormChange}
-                                            error={errors.title}
-                                            placeholder="Title"
-                                            disabled={isLoading}
-                                            className="input input-bordered w-full text-lg"
-                                        />
-                                    </IpadCursorBlockWrapper>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <IconArticle size={30} />
-
-                                    <IpadCursorBlockWrapper
-                                        type="text"
-                                        className="w-full"
-                                    >
-                                        <ZodTextarea
-                                            schema={createBoardSchema}
-                                            name="description"
-                                            label="Description"
-                                            value={formData.description}
-                                            onChange={handleFormChange}
-                                            error={errors.description}
-                                            placeholder="Description"
-                                            disabled={isLoading}
-                                            className="textarea textarea-bordered w-full text-lg"
-                                            rows={5}
-                                        />
-                                    </IpadCursorBlockWrapper>
-                                </div>
-
                                 <div className="">
                                     <h3 className="text-lg my-2 ">Priority</h3>
                                     <input
                                         type="range"
-                                        min={0}
+                                        min={-1}
                                         max={10}
                                         value={priority}
                                         disabled={isLoading}
                                         onChange={(e) =>
-                                            setPriority(e.target.value)
+                                            setPriority(
+                                                parseInt(e.target.value)
+                                            )
                                         }
                                         className="range"
                                         step={1}
                                     />
-                                    <div className="flex w-full justify-between px-2 text-xs">
-                                        <span>0</span>
-                                        <span>1</span>
-                                        <span>2</span>
-                                        <span>3</span>
-                                        <span>4</span>
-                                        <span>5</span>
-                                        <span>6</span>
-                                        <span>7</span>
-                                        <span>8</span>
-                                        <span>9</span>
-                                        <span>10</span>
+                                    <div className="flex w-full justify-between px-1 text-xs">
+                                        <span>N/A</span>
+
+                                        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(
+                                            (number) => (
+                                                <span>{number}</span>
+                                            )
+                                        )}
                                     </div>
                                 </div>
                             </div>
 
                             <div>
+                                <div className="dropdown">
+                                    <div className="flex gap-2 items-center">
+                                        <button
+                                            className="btn m-1"
+                                            disabled={isLoading}
+                                            onClick={() =>
+                                                setIsStatusDropDownOpen(
+                                                    !isStatusDropDownOpen
+                                                )
+                                            }
+                                        >
+                                            Status
+                                        </button>
+                                    </div>
+
+                                    {isStatusDropDownOpen && (
+                                        <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                            {Object.entries(columns).map(
+                                                (column) => (
+                                                    <li key={column[0]}>
+                                                        <IpadCursorBlockWrapper>
+                                                            <label className="flex items-center space-x-2 ">
+                                                                <button
+                                                                    onClick={() =>
+                                                                        toggleStatus(
+                                                                            column[0]
+                                                                        )
+                                                                    }
+                                                                    className="w-full flex items-center space-x-2 "
+                                                                >
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={selectedStatus.some(
+                                                                            (
+                                                                                u
+                                                                            ) =>
+                                                                                u ===
+                                                                                column[0]
+                                                                        )}
+                                                                        className="checkbox"
+                                                                    />
+
+                                                                    <span>
+                                                                        {
+                                                                            column[0]
+                                                                        }
+                                                                    </span>
+                                                                </button>
+                                                            </label>
+                                                        </IpadCursorBlockWrapper>
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                    )}
+                                </div>
+
                                 <div className="dropdown">
                                     <div className="flex gap-2 items-center">
                                         <button
@@ -296,6 +264,16 @@ function AddTicket({ status }: AddTicketProps) {
                                 <IpadCursorBlockWrapper>
                                     <button
                                         className="btn"
+                                        onClick={handleResetFilters}
+                                        disabled={isLoading}
+                                    >
+                                        Reset Filters
+                                    </button>
+                                </IpadCursorBlockWrapper>
+
+                                <IpadCursorBlockWrapper>
+                                    <button
+                                        className="btn"
                                         onClick={closeModal}
                                         disabled={isLoading}
                                     >
@@ -312,7 +290,7 @@ function AddTicket({ status }: AddTicketProps) {
                                         {isLoading ? (
                                             <span className="loading loading-bars loading-xs"></span>
                                         ) : (
-                                            "Create"
+                                            "Apply Filters"
                                         )}
                                     </button>
                                 </IpadCursorBlockWrapper>
@@ -325,4 +303,4 @@ function AddTicket({ status }: AddTicketProps) {
     );
 }
 
-export default AddTicket;
+export default Filters;

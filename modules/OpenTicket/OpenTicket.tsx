@@ -36,7 +36,6 @@ const createBoardSchema = z.object({
 type CreateBoardFormData = z.infer<typeof createBoardSchema>;
 
 function OpenTicket({ ticket, index }: AddTicketProps) {
-    console.log("🚀 ~ OpenTicket ~ ticket:", ticket);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingComments, setIsLoadingComments] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
@@ -74,6 +73,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                 users: s.users,
                 columns: s.columns,
                 updateTicket: s.updateTicket,
+
                 selectedBoardId: s.selectedBoardId,
             };
         }
@@ -98,17 +98,6 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                 return rest;
             });
         }
-    };
-
-    const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-        setter: React.Dispatch<React.SetStateAction<string | number>>
-    ) => {
-        const value =
-            e.target.type === "number"
-                ? parseInt(e.target.value)
-                : e.target.value;
-        setter(value);
     };
 
     const toggleUser = (user: User) => {
@@ -139,11 +128,12 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         //Load comments on this ticket
         const { data } = await supabase
             .from("Tickets")
-            .select("Comments(*, Users(*))")
+            .select("status, Comments(*, Users(*))")
             .eq("id", ticket.id);
 
         if (data && data[0]) {
             setComments(data[0].Comments || []);
+            setSelectedStatus(data[0].status);
         }
 
         setIsLoadingComments(false);
@@ -322,26 +312,18 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                 disabled={isLoading}
                                                 value={priority}
                                                 onChange={(e) =>
-                                                    handleInputChange(
-                                                        e,
-                                                        setPriority
-                                                    )
+                                                    setPriority(e.target.value)
                                                 }
                                                 className="range"
                                                 step={1}
                                             />
                                             <div className="flex w-full justify-between px-2 text-xs">
-                                                <span>0</span>
-                                                <span>1</span>
-                                                <span>2</span>
-                                                <span>3</span>
-                                                <span>4</span>
-                                                <span>5</span>
-                                                <span>6</span>
-                                                <span>7</span>
-                                                <span>8</span>
-                                                <span>9</span>
-                                                <span>10</span>
+                                                {[
+                                                    0, 1, 2, 3, 4, 5, 6, 7, 8,
+                                                    9, 10,
+                                                ].map((number) => (
+                                                    <span>{number}</span>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
@@ -513,7 +495,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                             {comment.Users.name}{" "}
                                                             {"   "}-{"   "}
                                                             {format(
-                                                                comment.updatedAt,
+                                                                comment.updated_at,
                                                                 {
                                                                     date: "full",
                                                                     time: "short",
