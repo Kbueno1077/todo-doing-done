@@ -1,3 +1,5 @@
+import { User as SupabaseUser } from "@supabase/supabase-js";
+
 export interface Ticket {
     id: string;
     title?: string;
@@ -30,6 +32,14 @@ export interface AssignedToTickets {
 }
 
 export interface User {
+    created_at: string;
+    updated_at: string;
+    id: string;
+    name: string;
+    img?: string;
+}
+
+export interface UserProfile extends SupabaseUser {
     created_at: string;
     updated_at: string;
     id: string;

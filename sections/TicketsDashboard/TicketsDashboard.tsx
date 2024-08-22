@@ -153,7 +153,17 @@ function TicketsDashboard() {
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="grid overflow-auto w-full gap-2 flex-grow grid-cols-[repeat(auto-fill,minmax(100px,350px))]">
+            <div
+                style={{
+                    display: "grid",
+                    overflow: "auto",
+                    gridTemplateColumns:
+                        "repeat(auto-fill, minmax(100px, 350px))",
+                    width: "100%",
+                    gap: "8px",
+                    flexGrow: 1,
+                }}
+            >
                 {isLoading || isGlobalLoading ? (
                     <>
                         {Object.values(columns).map((_) => (

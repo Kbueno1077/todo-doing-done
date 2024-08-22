@@ -470,42 +470,51 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                         {comments?.map((comment, index) => (
                                             <div
                                                 key={comment.id}
-                                                className={`flex gap-4 items-center py-4 ${
+                                                className={`flex items-center chat chat-start ${
                                                     comments.length - 1 ===
                                                     index
-                                                        ? "justify-end"
+                                                        ? "justify-end chat-end"
                                                         : ""
                                                 }`}
                                             >
-                                                <div className="avatar">
-                                                    <div className="w-8 rounded">
-                                                        <img
-                                                            src={
-                                                                comment.Users
-                                                                    .img ||
-                                                                "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-col">
-                                                    <div>
-                                                        <p className="text-sm">
-                                                            {comment.Users.name}{" "}
-                                                            {"   "}-{"   "}
-                                                            {format(
-                                                                comment.updated_at,
-                                                                {
-                                                                    date: "full",
-                                                                    time: "short",
+                                                <div
+                                                    className={`flex gap-4 items-center py-4 chat-bubble`}
+                                                >
+                                                    <div className="avatar">
+                                                        <div className="w-8 rounded">
+                                                            <img
+                                                                src={
+                                                                    comment
+                                                                        .Users
+                                                                        .img ||
+                                                                    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
                                                                 }
-                                                            )}
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex flex-col">
+                                                        <div>
+                                                            <p className="text-sm">
+                                                                {
+                                                                    comment
+                                                                        .Users
+                                                                        .name
+                                                                }{" "}
+                                                                {"   "}-{"   "}
+                                                                {format(
+                                                                    comment.updated_at,
+                                                                    {
+                                                                        date: "full",
+                                                                        time: "short",
+                                                                    }
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                        <p className="text-sm">
+                                                            {comment.content}
                                                         </p>
                                                     </div>
-                                                    <p className="text-sm">
-                                                        {comment.content}
-                                                    </p>
                                                 </div>
                                             </div>
                                         ))}

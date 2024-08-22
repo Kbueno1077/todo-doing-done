@@ -4,6 +4,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 import Footer from "@/sections/Footer/Footer";
 import { Metadata } from "next";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 const defaultUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
@@ -39,17 +41,39 @@ export const metadata: Metadata = {
     },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const supabase = createClient();
+
+    let userData = null;
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+        userData = { ...user };
+    }
+
+    // Fetch additional user info from your custom table
+    if (user) {
+        const { data: userProfile, error: profileError } = await supabase
+            .from("Users")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+
+        userData = { ...user, ...userProfile };
+    }
+
     return (
         <html lang="en" className={GeistSans.className} data-theme="light">
             <body>
                 <Providers>
                     <main className="min-h-screen flex flex-col items-center">
-                        <Navbar />
+                        <Navbar user={userData} />
 
                         {children}
                     </main>
