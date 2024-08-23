@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
+import { UserProfile } from "@/utils/types";
 import { showToast } from "@/utils/utils";
 
 const supabase = createClient();
@@ -6,6 +7,7 @@ const supabase = createClient();
 export const createUserSlice = (set: any, get: any) => ({
     // STATE
     users: [],
+    loggedUser: null,
 
     //   ACTIONS
     loadAllUsers: async () => {
@@ -31,5 +33,9 @@ export const createUserSlice = (set: any, get: any) => ({
                 ? error
                 : new Error("An unknown error occurred");
         }
+    },
+
+    setLoggedUser: (user: UserProfile | null) => {
+        set((state) => ({ ...state, loggedUser: user }));
     },
 });

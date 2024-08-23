@@ -1,7 +1,7 @@
 "use client";
 
 import { persist } from "zustand/middleware";
-import { Filter, Ticket, User } from "@/utils/types";
+import { Filter, Ticket, User, UserProfile } from "@/utils/types";
 import { createStore } from "zustand";
 import { createBoardSlice } from "./slices/boardSlice";
 import { createTicketSlice } from "./slices/ticketSlice";
@@ -18,6 +18,7 @@ export interface StoreProps {
     cursorType: "Ipad" | "Pointer";
     isGlobalLoading: boolean;
     filters: Filter;
+    loggedUser: UserProfile | null;
 
     //Boards
     loadAllBoards: () => Promise<any>;
@@ -43,6 +44,7 @@ export interface StoreProps {
 
     //Users
     loadAllUsers: () => Promise<any>;
+    setLoggedUser: (user: UserProfile | null) => void;
 
     //Misc
     setColumns: (columns: any) => void;

@@ -1,11 +1,10 @@
+import Footer from "@/sections/Footer/Footer";
 import Navbar from "@/sections/Navbar/Navbar";
+import { createClient } from "@/utils/supabase/server";
 import { GeistSans } from "geist/font/sans";
+import { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
-import Footer from "@/sections/Footer/Footer";
-import { Metadata } from "next";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 
 const defaultUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`

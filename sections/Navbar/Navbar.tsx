@@ -7,22 +7,18 @@ import { useStoreContext } from "@/store/useStoreContext";
 import { disposeCursor, initCursor } from "ipad-cursor";
 
 import AuthMenu from "@/components/AuthMenu/AuthMenu";
+import NoAuthMenu from "@/components/AuthMenu/NoAuthMenu";
 import Filters from "@/modules/Filters/Filters";
-import { User } from "@supabase/supabase-js";
+import { UserProfile } from "@/utils/types";
 import {
     IconAlignJustified,
     IconInnerShadowBottomRight,
-    IconLogout2,
     IconPointer,
-    IconUser,
 } from "@tabler/icons-react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserProfile } from "@/utils/types";
+import { useEffect } from "react";
 
 function Navbar({ user }: { user: UserProfile | null }) {
-    console.log("🚀 ~ Navbar ~ user:", user);
-
     const {
         selectedBoardId,
         boards,
@@ -30,6 +26,8 @@ function Navbar({ user }: { user: UserProfile | null }) {
         cursorType,
         setCursorType,
         isGlobalLoading,
+        setLoggedUser,
+        loggedUser,
     } = useStoreContext((s) => {
         return {
             selectedBoardId: s.selectedBoardId,
@@ -38,8 +36,16 @@ function Navbar({ user }: { user: UserProfile | null }) {
             loadTicketsFromBoard: s.loadTicketsFromBoard,
             setCursorType: s.setCursorType,
             isGlobalLoading: s.isGlobalLoading,
+            setLoggedUser: s.setLoggedUser,
+            loggedUser: s.loggedUser,
         };
     });
+
+    console.log("🚀 ~ Navbar ~ loggedUser:", loggedUser);
+
+    useEffect(() => {
+        setLoggedUser(user);
+    }, [user]);
 
     const router = usePathname();
 
@@ -64,9 +70,11 @@ function Navbar({ user }: { user: UserProfile | null }) {
         setCursorType("Pointer");
     };
 
+    const isDasboardOrDemo = router === "/demo" || router === "/dashboard";
+
     return (
         <div className="navbar bg-base-100 w-full ">
-            {router === "/" && (
+            {isDasboardOrDemo && (
                 <div className="navbar-start">
                     <div className="dropdown navbar-center cursor-none">
                         <IpadCursorBlockWrapper>
@@ -124,7 +132,7 @@ function Navbar({ user }: { user: UserProfile | null }) {
                 </div>
             )}
             <div className="navbar-end w-full sm:mr-4 sm:gap-2">
-                {router === "/" && <Filters />}
+                {isDasboardOrDemo && <Filters />}
 
                 {cursorType === "Ipad" ? (
                     <IpadCursorBlockWrapper>
@@ -143,16 +151,8 @@ function Navbar({ user }: { user: UserProfile | null }) {
                     </IpadCursorBlockWrapper>
                 )}
 
-                {!user && (
-                    <IpadCursorBlockWrapper>
-                        <Link className="btn btn-ghost" href={"/login"}>
-                            <IconUser size={20} />
-                        </Link>
-                    </IpadCursorBlockWrapper>
-                )}
-
                 <ThemeController />
-                {user && <AuthMenu user={user} />}
+                {loggedUser ? <AuthMenu /> : <NoAuthMenu />}
             </div>
         </div>
     );
