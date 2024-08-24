@@ -171,12 +171,18 @@ function TicketsDashboard() {
                         ))}
                     </>
                 ) : (
-                    Object.values(columns).map((col: any) => (
-                        <Column id={col.id} list={col.list} key={col.id} />
-                    ))
+                    Object.values(columns)
+                        .sort((a, b) => a.index - b.index)
+                        .map((col: any) => (
+                            <Column
+                                id={col.id}
+                                list={col.list}
+                                key={col.id + col.index}
+                            />
+                        ))
                 )}
 
-                {!isLoading && !isGlobalLoading && (
+                {/* {!isLoading && !isGlobalLoading && (
                     <div>
                         <IpadCursorBlockWrapper>
                             <button className="btn rounded-md flex-grow-0 w-full">
@@ -185,7 +191,7 @@ function TicketsDashboard() {
                             </button>
                         </IpadCursorBlockWrapper>
                     </div>
-                )}
+                )} */}
             </div>
         </DragDropContext>
     );

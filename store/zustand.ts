@@ -48,6 +48,7 @@ export interface StoreProps {
 
     //Misc
     setColumns: (columns: any) => void;
+    setColumnsStatic: (columns: any) => void;
     setIsLoading: (isLoading: boolean) => void;
     setCursorType: (cursorType: "Ipad" | "Pointer") => void;
 }
@@ -62,14 +63,16 @@ type DefaultProps = {
 type InitialProps = {};
 
 export const initialColumns = {
-    Todo: { id: "Todo", list: [] },
+    Todo: { id: "Todo", list: [], index: 0 },
     Doing: {
         id: "Doing",
         list: [],
+        index: 1,
     },
     Done: {
         id: "Done",
         list: [],
+        index: 2,
     },
 };
 
@@ -105,10 +108,18 @@ export const createTicketStore = (initProps: InitialProps) => {
                     }));
                 },
 
+                // ONLY FOR MOVEMENT
                 setColumns: (columns: any) => {
                     set((state) => ({
                         ...state,
                         columns: columns(state.columns),
+                    }));
+                },
+
+                setColumnsStatic: (columns: any) => {
+                    set((state) => ({
+                        ...state,
+                        columns,
                     }));
                 },
 

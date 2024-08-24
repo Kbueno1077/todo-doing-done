@@ -86,13 +86,19 @@ function AddTicket({ status }: AddTicketProps) {
         });
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+            closeModal();
+        }
+    };
+
     function openModal() {
-        document.addEventListener("keydown", closeModal);
+        document.addEventListener("keydown", handleKeyDown);
         setIsOpen(true);
     }
 
     function closeModal() {
-        document.removeEventListener("keydown", closeModal);
+        document.removeEventListener("keydown", handleKeyDown);
         setPriority(0);
         setErrors({});
         setFormData({

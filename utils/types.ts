@@ -60,6 +60,7 @@ export interface Item {
 export interface GroupedItem {
     id: string;
     list: Item[];
+    index: number;
 }
 
 export interface Filter {

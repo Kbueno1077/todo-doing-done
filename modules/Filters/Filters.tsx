@@ -24,7 +24,6 @@ function Filters() {
             };
         });
 
-    console.log("🚀 ~ Filters ~ filters:", filters);
     const [isDropDownOpen, setIsDropDownOpen] = useState(false);
     const [isStatusDropDownOpen, setIsStatusDropDownOpen] = useState(false);
 
@@ -60,8 +59,14 @@ function Filters() {
         });
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+            closeModal();
+        }
+    };
+
     function openModal() {
-        document.addEventListener("keydown", closeModal);
+        document.addEventListener("keydown", handleKeyDown);
         setIsOpen(true);
     }
 
@@ -75,8 +80,8 @@ function Filters() {
 
     const handleSubmit = async () => {
         if (
-            priority > -1 &&
-            selectedUsers.length > 0 &&
+            priority > -1 ||
+            selectedUsers.length > 0 ||
             selectedStatus.length > 0
         ) {
             applyFilters({
@@ -84,13 +89,15 @@ function Filters() {
                 assignedTo: selectedUsers,
                 status: selectedStatus,
             });
+        } else {
+            resetFilters();
         }
 
         closeModal();
     };
 
     function closeModal() {
-        document.removeEventListener("keydown", closeModal);
+        document.removeEventListener("keydown", handleKeyDown);
         setIsOpen(false);
     }
 

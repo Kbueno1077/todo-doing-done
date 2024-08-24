@@ -69,13 +69,18 @@ function CreateBoard() {
         });
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+            closeModal();
+        }
+    };
     function openModal() {
-        document.addEventListener("keydown", closeModal);
+        document.addEventListener("keydown", handleKeyDown);
         setIsOpen(true);
     }
 
     function closeModal() {
-        document.removeEventListener("keydown", closeModal);
+        document.removeEventListener("keydown", handleKeyDown);
         setSelectedUsers([]);
         setErrors({});
         setFormData({ name: "" });

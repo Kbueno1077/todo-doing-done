@@ -14,6 +14,7 @@ export const createBoardSlice = (set: any, get: any) => ({
     loadAllBoards: async () => {
         try {
             get().setIsLoading(true);
+
             const { data, error } = await supabase
                 .from("Boards")
                 .select("*, BoardMembership(*, Users(*))");
@@ -61,6 +62,8 @@ export const createBoardSlice = (set: any, get: any) => ({
                 .select("*, AssignedToTickets(*, Users(*))")
                 .eq("board_id", boardId)
                 .eq("isActive", true);
+
+            console.log("🚀 ~ loadTicketsFromBoard: ~ data:", data);
 
             if (error) throw error;
 

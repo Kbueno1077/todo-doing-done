@@ -51,8 +51,6 @@ export const createFiltersSlice = (set: any, get: any) => ({
         });
 
         const groupedData = groupByStatus(filteredTickets);
-        console.log("🚀 ~ filteredTickets:", filteredTickets);
-        console.log("🚀 ~ groupedData:", groupedData);
 
         set((state) => ({
             ...state,

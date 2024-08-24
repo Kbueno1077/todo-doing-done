@@ -8,7 +8,7 @@ function GroupedAvatars({ assignedTo }: { assignedTo: User[] }) {
                 {assignedTo.map((assignedTo, index) => (
                     <>
                         {index < 2 && (
-                            <div className="avatar">
+                            <div className="avatar" key={assignedTo.id}>
                                 <div className="w-8 rounded">
                                     <img
                                         src={

@@ -67,17 +67,17 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         setIsDeleteOpen(!isDeleteOpen);
     };
 
-    const { users, updateTicket, selectedBoardId, columns } = useStoreContext(
-        (s) => {
+    const { loggedUser, users, updateTicket, selectedBoardId, columns } =
+        useStoreContext((s) => {
             return {
                 users: s.users,
+                loggedUser: s.loggedUser,
                 columns: s.columns,
                 updateTicket: s.updateTicket,
 
                 selectedBoardId: s.selectedBoardId,
             };
-        }
-    );
+        });
 
     const handleFormChange = (
         name: keyof CreateBoardFormData,
@@ -290,7 +290,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                     schema={createBoardSchema}
                                                     name="description"
                                                     label="Description"
-                                                    value={formData.title}
+                                                    value={formData.description}
                                                     onChange={handleFormChange}
                                                     error={errors.description}
                                                     placeholder="Description"
@@ -322,7 +322,9 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                     0, 1, 2, 3, 4, 5, 6, 7, 8,
                                                     9, 10,
                                                 ].map((number) => (
-                                                    <span>{number}</span>
+                                                    <span key={number}>
+                                                        {number}
+                                                    </span>
                                                 ))}
                                             </div>
                                         </div>
@@ -456,69 +458,92 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                         </div>
                                     </div>
 
-                                    <div className="mt-2">
-                                        <h3 className="text-lg my-2 ">
-                                            Comments
-                                        </h3>
+                                    {isLoadingComments && (
+                                        <>
+                                            <div className="skeleton h-60 w-full mb-5"></div>
+                                        </>
+                                    )}
 
-                                        {isLoadingComments && (
-                                            <>
-                                                <div className="skeleton h-60 w-full mb-5"></div>
-                                            </>
-                                        )}
+                                    {!isLoadingComments && (
+                                        <div className="my-4">
+                                            <div className="collapse bg-base-200 sm:px-3">
+                                                <input type="checkbox" />
 
-                                        {comments?.map((comment, index) => (
-                                            <div
-                                                key={comment.id}
-                                                className={`flex items-center chat chat-start ${
-                                                    comments.length - 1 ===
-                                                    index
-                                                        ? "justify-end chat-end"
-                                                        : ""
-                                                }`}
-                                            >
-                                                <div
-                                                    className={`flex gap-4 items-center py-4 chat-bubble`}
-                                                >
-                                                    <div className="avatar">
-                                                        <div className="w-8 rounded">
-                                                            <img
-                                                                src={
+                                                <h3 className="my-2 collapse-title text-xl font-medium ">
+                                                    Comments ({comments?.length}
+                                                    )
+                                                </h3>
+
+                                                <div className="collapse-content">
+                                                    {comments?.map(
+                                                        (comment, index) => (
+                                                            <div
+                                                                key={comment.id}
+                                                                className={`flex items-center chat chat-start ${
+                                                                    loggedUser?.id ===
                                                                     comment
                                                                         .Users
-                                                                        .img ||
-                                                                    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                                                                }
-                                                            />
-                                                        </div>
-                                                    </div>
+                                                                        .id
+                                                                        ? "justify-end chat-end"
+                                                                        : ""
+                                                                }`}
+                                                            >
+                                                                <div
+                                                                    className={`flex gap-4 items-end py-4 chat-bubble`}
+                                                                >
+                                                                    <div className="avatar">
+                                                                        <div className="w-8 rounded">
+                                                                            <img
+                                                                                src={
+                                                                                    comment
+                                                                                        .Users
+                                                                                        .img ||
+                                                                                    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                                                                                }
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                    <IpadCursorBlockWrapper type="text">
+                                                                        <div className="flex flex-col">
+                                                                            <div>
+                                                                                <p className="text-sm">
+                                                                                    {
+                                                                                        comment
+                                                                                            .Users
+                                                                                            .name
+                                                                                    }{" "}
+                                                                                    {
+                                                                                        "   "
+                                                                                    }
 
-                                                    <div className="flex flex-col">
-                                                        <div>
-                                                            <p className="text-sm">
-                                                                {
-                                                                    comment
-                                                                        .Users
-                                                                        .name
-                                                                }{" "}
-                                                                {"   "}-{"   "}
-                                                                {format(
-                                                                    comment.updated_at,
-                                                                    {
-                                                                        date: "full",
-                                                                        time: "short",
-                                                                    }
-                                                                )}
-                                                            </p>
-                                                        </div>
-                                                        <p className="text-sm">
-                                                            {comment.content}
-                                                        </p>
-                                                    </div>
+                                                                                    -
+                                                                                    {
+                                                                                        "   "
+                                                                                    }
+                                                                                    {format(
+                                                                                        comment.updated_at,
+                                                                                        {
+                                                                                            date: "full",
+                                                                                            time: "short",
+                                                                                        }
+                                                                                    )}
+                                                                                </p>
+                                                                            </div>
+                                                                            <p className="text-sm">
+                                                                                {
+                                                                                    comment.content
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                    </IpadCursorBlockWrapper>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    )}
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    )}
 
                                     <div className="flex gap-4 mt-2">
                                         <IconMessage size={30} />

@@ -1,6 +1,8 @@
+import { AssignedToTickets, Ticket } from "./../../utils/types";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@/utils/types";
-import { showToast } from "@/utils/utils";
+import { deepClone, groupByStatus, showToast } from "@/utils/utils";
+import { initialColumns } from "../zustand";
 
 const supabase = createClient();
 
@@ -28,10 +30,24 @@ export const createTicketSlice = (set: any, get: any) => ({
                 throw new Error("No board ID returned from the server");
             }
 
-            // Reload tickets or update state
-            await get().loadTicketsFromBoard(get().selectedBoardId);
+            data.AssignedToTickets = [];
+            selectedUsers.forEach((user) => {
+                data.AssignedToTickets.push({
+                    Users: user,
+                    ticket_id: ticket.id,
+                });
+            });
 
-            showToast("Ticket created successfully", "success");
+            const tickets = deepClone(get().tickets);
+
+            tickets.push(data);
+            const groupedTickets = groupByStatus(tickets);
+
+            set((state) => ({
+                ...state,
+                tickets,
+                columns: { ...initialColumns, ...groupedTickets },
+            }));
 
             return data;
         } catch (error: any) {
@@ -41,9 +57,130 @@ export const createTicketSlice = (set: any, get: any) => ({
                 : "An unexpected error occurred while creating the ticket";
 
             showToast(errorMessage, "Error");
+
+            await get().loadTicketsFromBoard(get().selectedBoardId);
+
             return error instanceof Error
                 ? error
                 : new Error("An unknown error occurred");
+        }
+    },
+
+    updateTicket: async (
+        ticket: { newTicket: any; isUpdateNeeded: boolean },
+        users: { selectedUsers: User[]; isUpdateNeeded: boolean },
+        comment?: string
+    ): Promise<{ success: boolean } | Error> => {
+        try {
+            const { data, error } = await supabase.rpc(
+                "update_ticket_and_assignments",
+                {
+                    p_ticket_data: ticket.newTicket,
+                    p_update_ticket: ticket.isUpdateNeeded,
+                    p_user_ids: users.selectedUsers.map((user) => user.id),
+                    p_update_users: users.isUpdateNeeded,
+                    p_comment: comment || null,
+                }
+            );
+
+            if (error) throw error;
+
+            if (!data) {
+                throw new Error("No board ID returned from the server");
+            }
+
+            const tickets = deepClone(get().tickets);
+            const index = tickets.findIndex(
+                (t: Ticket) => t.id === ticket.newTicket.id
+            );
+
+            const currentAssignedToTickets = deepClone(
+                tickets[index].AssignedToTickets
+            );
+
+            tickets[index] = data;
+
+            if (users.isUpdateNeeded) {
+                tickets[index].AssignedToTickets = users.selectedUsers.map(
+                    (user) => {
+                        return {
+                            Users: user,
+                            ticket_id: ticket.newTicket.id,
+                        };
+                    }
+                );
+            } else {
+                tickets[index].AssignedToTickets = currentAssignedToTickets;
+            }
+
+            const groupedTickets = groupByStatus(tickets);
+            set((state) => ({
+                ...state,
+                tickets,
+                columns: { ...initialColumns, ...groupedTickets },
+            }));
+
+            showToast("Ticket updated successfully", "success");
+
+            return { success: true };
+        } catch (error: any) {
+            console.error("Error updating ticket:", error);
+            const errorMessage = error?.message
+                ? error?.message
+                : "An unexpected error occurred while updating the ticket";
+            showToast(errorMessage, "Error");
+
+            await get().loadTicketsFromBoard(get().selectedBoardId);
+
+            return error instanceof Error
+                ? error
+                : new Error("An unknown error occurred");
+        }
+    },
+
+    deleteTicket: async (ticketId: string): Promise<any | Error> => {
+        try {
+            const { data, error } = await supabase
+                .from("Tickets")
+                .update({ isActive: false })
+                .eq("id", ticketId)
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            if (!data) {
+                throw new Error("No data returned from the update operation");
+            }
+
+            const tickets = deepClone(get().tickets);
+            const index = tickets.findIndex((t: Ticket) => t.id === ticketId);
+
+            tickets.splice(index, 1);
+
+            const groupedTickets = groupByStatus(tickets);
+            set((state) => ({
+                ...state,
+                tickets,
+                columns: { ...initialColumns, ...groupedTickets },
+            }));
+
+            showToast("Ticket deleted successfully", "success");
+            return { success: true, data };
+        } catch (error: any) {
+            console.error("Error updating ticket isActive status:", error);
+
+            const errorMessage = error?.message
+                ? error?.message
+                : "An unexpected error occurred while deleting the ticket";
+
+            await get().loadTicketsFromBoard(get().selectedBoardId);
+
+            showToast(errorMessage, "error");
+            return {
+                success: false,
+                error: errorMessage,
+            };
         }
     },
 
@@ -77,82 +214,6 @@ export const createTicketSlice = (set: any, get: any) => ({
             return error instanceof Error
                 ? error
                 : new Error("An unknown error occurred");
-        }
-    },
-
-    updateTicket: async (
-        ticket: { newTicket: any; isUpdateNeeded: boolean },
-        users: { selectedUsers: User[]; isUpdateNeeded: boolean },
-        comment?: string
-    ): Promise<{ success: boolean } | Error> => {
-        try {
-            const { data, error } = await supabase.rpc(
-                "update_ticket_and_assignments",
-                {
-                    p_ticket_data: ticket.newTicket,
-                    p_update_ticket: ticket.isUpdateNeeded,
-                    p_user_ids: users.selectedUsers.map((user) => user.id),
-                    p_update_users: users.isUpdateNeeded,
-                    p_comment: comment || null,
-                }
-            );
-
-            if (error) throw error;
-
-            if (!data) {
-                throw new Error("No board ID returned from the server");
-            }
-
-            // Reload tickets or update state
-            await get().loadTicketsFromBoard(get().selectedBoardId);
-
-            showToast("Ticket updated successfully", "success");
-
-            return { success: true };
-        } catch (error: any) {
-            console.error("Error updating ticket:", error);
-            const errorMessage = error?.message
-                ? error?.message
-                : "An unexpected error occurred while updating the ticket";
-
-            showToast(errorMessage, "Error");
-            return error instanceof Error
-                ? error
-                : new Error("An unknown error occurred");
-        }
-    },
-
-    deleteTicket: async (ticketId: string): Promise<any | Error> => {
-        try {
-            const { data, error } = await supabase
-                .from("Tickets")
-                .update({ isActive: false })
-                .eq("id", ticketId)
-                .select()
-                .single();
-
-            if (error) throw error;
-
-            if (!data) {
-                throw new Error("No data returned from the update operation");
-            }
-
-            await get().loadTicketsFromBoard(get().selectedBoardId);
-
-            showToast("Ticket deleted successfully", "success");
-            return { success: true, data };
-        } catch (error: any) {
-            console.error("Error updating ticket isActive status:", error);
-
-            const errorMessage = error?.message
-                ? error?.message
-                : "An unexpected error occurred while deleting the ticket";
-
-            showToast(errorMessage, "error");
-            return {
-                success: false,
-                error: errorMessage,
-            };
         }
     },
 });

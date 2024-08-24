@@ -1,14 +1,20 @@
-import { GroupedItem, Item } from "./types";
+import { initialColumns } from "./../store/zustand";
+import { GroupedItem, Item, Ticket } from "./types";
 
 export function groupByStatus(
-    array: Item[] | null
+    array: Item[] | null,
+    initialColumnsData: any = initialColumns
 ): Record<string, GroupedItem> {
     if (!array) return {};
 
     return array.reduce((groups: Record<string, GroupedItem>, item: Item) => {
         const status = item.status;
         if (!groups[status]) {
-            groups[status] = { id: status, list: [] };
+            groups[status] = {
+                id: status,
+                list: [],
+                index: initialColumnsData[status].index,
+            };
         }
         groups[status].list.push(item);
         return groups;

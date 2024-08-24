@@ -17,6 +17,7 @@ import {
 } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import ColumnSettings from "@/modules/ColumnSettings/ColumnSettings";
 
 function Navbar({ user }: { user: UserProfile | null }) {
     const {
@@ -40,8 +41,6 @@ function Navbar({ user }: { user: UserProfile | null }) {
             loggedUser: s.loggedUser,
         };
     });
-
-    console.log("🚀 ~ Navbar ~ loggedUser:", loggedUser);
 
     useEffect(() => {
         setLoggedUser(user);
@@ -128,6 +127,9 @@ function Navbar({ user }: { user: UserProfile | null }) {
 
                     <div className="ml-2">
                         <CreateBoard />
+                    </div>
+                    <div className="ml-2">
+                        <ColumnSettings />
                     </div>
                 </div>
             )}
