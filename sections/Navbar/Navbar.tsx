@@ -8,6 +8,7 @@ import { disposeCursor, initCursor } from "ipad-cursor";
 
 import AuthMenu from "@/components/AuthMenu/AuthMenu";
 import NoAuthMenu from "@/components/AuthMenu/NoAuthMenu";
+import BoardSettings from "@/modules/BoardSettings/BoardSettings";
 import Filters from "@/modules/Filters/Filters";
 import { UserProfile } from "@/utils/types";
 import {
@@ -17,7 +18,6 @@ import {
 } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import ColumnSettings from "@/modules/ColumnSettings/ColumnSettings";
 
 function Navbar({ user }: { user: UserProfile | null }) {
     const {
@@ -129,7 +129,7 @@ function Navbar({ user }: { user: UserProfile | null }) {
                         <CreateBoard />
                     </div>
                     <div className="ml-2">
-                        <ColumnSettings />
+                        <BoardSettings />
                     </div>
                 </div>
             )}

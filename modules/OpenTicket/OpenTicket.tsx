@@ -270,6 +270,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                     name="title"
                                                     label="Title"
                                                     value={formData.title}
+                                                    //@ts-ignore
                                                     onChange={handleFormChange}
                                                     error={errors.title}
                                                     placeholder="Title"
@@ -291,6 +292,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                     name="description"
                                                     label="Description"
                                                     value={formData.description}
+                                                    //@ts-ignore
                                                     onChange={handleFormChange}
                                                     error={errors.description}
                                                     placeholder="Description"
@@ -312,7 +314,9 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                 disabled={isLoading}
                                                 value={priority}
                                                 onChange={(e) =>
-                                                    setPriority(e.target.value)
+                                                    setPriority(
+                                                        parseInt(e.target.value)
+                                                    )
                                                 }
                                                 className="range"
                                                 step={1}
@@ -557,6 +561,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                 name="comment"
                                                 label="Comment"
                                                 value={formData.comment}
+                                                //@ts-ignore
                                                 onChange={handleFormChange}
                                                 error={errors.comment}
                                                 placeholder="Add comment"
@@ -623,11 +628,13 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                 </>
                             ) : (
                                 <>
-                                    <DeleteTicket
-                                        toggleDelete={toggleDelete}
-                                        ticketId={ticket.id}
-                                        closeModal={closeModal}
-                                    />
+                                    {ticket.id && (
+                                        <DeleteTicket
+                                            toggleDelete={toggleDelete}
+                                            ticketId={ticket.id}
+                                            closeModal={closeModal}
+                                        />
+                                    )}
                                 </>
                             )}
                         </div>

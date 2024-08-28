@@ -1,12 +1,19 @@
 import { User as SupabaseUser } from "@supabase/supabase-js";
 
-export interface Ticket {
+export type Board = {
     id: string;
+    name: string;
+    created_at?: string;
+    updated_at?: string;
+};
+
+export interface Ticket {
+    id?: string;
     title?: string;
     description?: string;
     AssignedToTickets?: AssignedToTickets[] | never[];
     priority?: number;
-    status?: string;
+    status: string;
     Comments?: Comment[] | never[];
     created_at?: string;
     updated_at?: string;
@@ -52,14 +59,9 @@ export interface TicketList {
     list: Ticket[] | never[];
 }
 
-export interface Item {
-    status: string;
-    [key: string]: any; // Allow other properties
-}
-
 export interface GroupedItem {
     id: string;
-    list: Item[];
+    list: Ticket[];
     index: number;
 }
 

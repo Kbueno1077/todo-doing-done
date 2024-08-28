@@ -1,9 +1,8 @@
 "use client";
 
 import Column from "@/components/Column/Column";
-import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
 import { useStoreContext } from "@/store/useStoreContext";
-import { IconPlus } from "@tabler/icons-react";
+import { StoreProps } from "@/store/zustand";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
@@ -91,7 +90,7 @@ function TicketsDashboard() {
             // Move the item within the list
             // Start by making a new list without the dragged item
             const newList = start.list.filter(
-                (_: any, idx: number) => idx !== source.index
+                (_, idx: number) => idx !== source.index
             );
 
             // Then insert the item at the right location
@@ -106,16 +105,19 @@ function TicketsDashboard() {
             const movedTicket = columns[source.droppableId].list[source.index];
             const newStatus = destination.droppableId;
 
-            moveTicket(movedTicket.id, newStatus);
+            moveTicket(movedTicket.id ?? "", newStatus);
 
             // Update the state
-            setColumns((state) => ({ ...state, [newCol.id]: newCol }));
+            setColumns((state: StoreProps) => ({
+                ...state,
+                [newCol.id]: newCol,
+            }));
             return null;
         } else {
             // If start is different from end, we need to update multiple columns
             // Filter the start list like before
             const newStartList = start.list.filter(
-                (_: any, idx: number) => idx !== source.index
+                (_, idx: number) => idx !== source.index
             );
 
             // Create a new start column
@@ -139,10 +141,10 @@ function TicketsDashboard() {
             const movedTicket = columns[source.droppableId].list[source.index];
             const newStatus = destination.droppableId;
 
-            moveTicket(movedTicket.id, newStatus);
+            moveTicket(movedTicket.id ?? "", newStatus);
 
             // Update the state
-            setColumns((state) => ({
+            setColumns((state: StoreProps) => ({
                 ...state,
                 [newStartCol.id]: newStartCol,
                 [newEndCol.id]: newEndCol,
@@ -172,7 +174,7 @@ function TicketsDashboard() {
                     </>
                 ) : (
                     Object.values(columns)
-                        .sort((a, b) => a.index - b.index)
+                        .sort((a: any, b: any) => a.index - b.index)
                         .map((col: any) => (
                             <Column
                                 id={col.id}
@@ -181,17 +183,6 @@ function TicketsDashboard() {
                             />
                         ))
                 )}
-
-                {/* {!isLoading && !isGlobalLoading && (
-                    <div>
-                        <IpadCursorBlockWrapper>
-                            <button className="btn rounded-md flex-grow-0 w-full">
-                                Create Column
-                                <IconPlus size={20} />
-                            </button>
-                        </IpadCursorBlockWrapper>
-                    </div>
-                )} */}
             </div>
         </DragDropContext>
     );

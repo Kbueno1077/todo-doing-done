@@ -1,39 +1,48 @@
 "use client";
 
-import { persist } from "zustand/middleware";
-import { Filter, Ticket, User, UserProfile } from "@/utils/types";
+import {
+    Board,
+    Filter,
+    GroupedItem,
+    Ticket,
+    User,
+    UserProfile,
+} from "@/utils/types";
+import { isMobileOrTablet, showToast } from "@/utils/utils";
 import { createStore } from "zustand";
+import { persist } from "zustand/middleware";
 import { createBoardSlice } from "./slices/boardSlice";
+import { createFiltersSlice } from "./slices/filtersSlice";
 import { createTicketSlice } from "./slices/ticketSlice";
 import { createUserSlice } from "./slices/userSlice";
-import { isMobileOrTablet, showToast } from "@/utils/utils";
-import { createFiltersSlice } from "./slices/filtersSlice";
 
 export interface StoreProps {
     // STATES
-    columns: any;
-    boards: any[];
+    columns: Record<string, GroupedItem>;
+    boards: Board[];
     selectedBoardId: string;
     users: User[];
     cursorType: "Ipad" | "Pointer";
     isGlobalLoading: boolean;
     filters: Filter;
     loggedUser: UserProfile | null;
+    tickets: Ticket[];
 
     //Boards
     loadAllBoards: () => Promise<any>;
     loadTicketsFromBoard: (boardId: string) => Promise<any>;
+    sendInvite: (email: string) => Promise<any>;
     createBoardAndAddMembers: (
         boardName: string,
         selectedUsers: User[]
     ) => Promise<any>;
 
     //Tickets
-    createTicket: (ticket: any, selectedUsers: User[]) => Promise<any>;
+    createTicket: (ticket: Ticket, selectedUsers: User[]) => Promise<any>;
     moveTicket: (ticketId: string, status: string) => Promise<any>;
     deleteTicket: (ticketid: string) => Promise<any>;
     updateTicket: (
-        ticket: { newTicket: any; isUpdateNeeded: boolean },
+        ticket: { newTicket: Ticket; isUpdateNeeded: boolean },
         users: { selectedUsers: User[]; isUpdateNeeded: boolean },
         comment: string
     ) => Promise<any>;
@@ -47,8 +56,9 @@ export interface StoreProps {
     setLoggedUser: (user: UserProfile | null) => void;
 
     //Misc
-    setColumns: (columns: any) => void;
-    setColumnsStatic: (columns: any) => void;
+    //Type for Set Columns is different from the setColumnsStatic as setColumns is used when Drag and Drop
+    setColumns: (columns: Function) => void;
+    setColumnsStatic: (columns: Record<string, GroupedItem>) => void;
     setIsLoading: (isLoading: boolean) => void;
     setCursorType: (cursorType: "Ipad" | "Pointer") => void;
 }
@@ -56,13 +66,13 @@ export interface StoreProps {
 export type TicketStore = ReturnType<typeof createTicketStore>;
 
 type DefaultProps = {
-    columns: any;
+    columns: Record<string, GroupedItem>;
     cursorType: "Ipad" | "Pointer";
     isGlobalLoading: boolean;
 };
 type InitialProps = {};
 
-export const initialColumns = {
+export const initialColumns: Record<string, GroupedItem> = {
     Todo: { id: "Todo", list: [], index: 0 },
     Doing: {
         id: "Doing",
@@ -109,15 +119,15 @@ export const createTicketStore = (initProps: InitialProps) => {
                 },
 
                 // ONLY FOR MOVEMENT
-                setColumns: (columns: any) => {
-                    set((state) => ({
+                setColumns: (columns) => {
+                    set((state: StoreProps) => ({
                         ...state,
                         columns: columns(state.columns),
                     }));
                 },
 
-                setColumnsStatic: (columns: any) => {
-                    set((state) => ({
+                setColumnsStatic: (columns) => {
+                    set((state: StoreProps) => ({
                         ...state,
                         columns,
                     }));
@@ -125,7 +135,7 @@ export const createTicketStore = (initProps: InitialProps) => {
 
                 setCursorType: (cursorType: "Ipad" | "Pointer") => {
                     if (isMobileOrTablet()) {
-                        set((state) => ({
+                        set((state: StoreProps) => ({
                             ...state,
                             cursorType: "Pointer",
                         }));
@@ -135,7 +145,7 @@ export const createTicketStore = (initProps: InitialProps) => {
                             "info"
                         );
                     } else {
-                        set((state) => ({
+                        set((state: StoreProps) => ({
                             ...state,
                             cursorType,
                         }));

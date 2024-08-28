@@ -1,13 +1,13 @@
 import { initialColumns } from "./../store/zustand";
-import { GroupedItem, Item, Ticket } from "./types";
+import { GroupedItem, Ticket } from "./types";
 
 export function groupByStatus(
-    array: Item[] | null,
-    initialColumnsData: any = initialColumns
+    array: Ticket[] | null,
+    initialColumnsData: Record<string, GroupedItem> = initialColumns
 ): Record<string, GroupedItem> {
     if (!array) return {};
 
-    return array.reduce((groups: Record<string, GroupedItem>, item: Item) => {
+    return array.reduce((groups: Record<string, GroupedItem>, item: Ticket) => {
         const status = item.status;
         if (!groups[status]) {
             groups[status] = {
@@ -21,7 +21,7 @@ export function groupByStatus(
     }, {});
 }
 
-export const deepClone = (originalObject: any) => {
+export const deepClone = (originalObject: Object) => {
     const deepCopy = structuredClone(originalObject);
     return deepCopy;
 };

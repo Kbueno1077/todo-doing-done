@@ -12,6 +12,8 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { z } from "zod";
+import InviteUser from "../InviteUser/InviteUser";
+import { GroupedItem } from "@/utils/types";
 
 const createColumnSchema = z.object({
     columnName: z.string().min(1, { message: "Ticket title is required" }),
@@ -19,7 +21,7 @@ const createColumnSchema = z.object({
 
 type CreateColumnFormData = z.infer<typeof createColumnSchema>;
 
-function ColumnSettings() {
+function BoardSettings() {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isCreatingColumn, setIsCreatingColumn] = useState(false);
@@ -31,10 +33,11 @@ function ColumnSettings() {
         Partial<Record<keyof CreateColumnFormData, string>>
     >({});
 
-    const { columns, setColumnsStatic } = useStoreContext((s) => {
+    const { columns, setColumnsStatic, loggedUser } = useStoreContext((s) => {
         return {
             columns: s.columns,
             setColumnsStatic: s.setColumnsStatic,
+            loggedUser: s.loggedUser,
         };
     });
 
@@ -124,8 +127,11 @@ function ColumnSettings() {
             index: Object.values(columnsTemp).length,
         };
 
-        setColumnsTemp((prevColumns) => {
-            const newColumns = deepClone(prevColumns);
+        setColumnsTemp((prevColumns: Record<string, GroupedItem>) => {
+            const newColumns = deepClone(prevColumns) as Record<
+                string,
+                GroupedItem
+            >;
             newColumns[newColumn.id] = newColumn;
             return newColumns;
         });
@@ -133,8 +139,8 @@ function ColumnSettings() {
         createColumnOff();
     };
 
-    function updateIndices(propertyName, direction) {
-        const obj = deepClone(columnsTemp);
+    function updateIndices(propertyName: string, direction: string) {
+        const obj = deepClone(columnsTemp) as Record<string, GroupedItem>;
 
         if (!obj.hasOwnProperty(propertyName)) {
             console.error(`Property "${propertyName}" not found.`);
@@ -197,15 +203,15 @@ function ColumnSettings() {
                                 <div className="flex gap-4 items-center py-4">
                                     <IconTableColumn size={30} />
                                     <h1 className="font-bold text-2xl">
-                                        Column Settings
+                                        Board Settings
                                     </h1>
                                 </div>
                             </IpadCursorBlockWrapper>
 
                             <div className="flex flex-col gap-4 py-4">
                                 {Object.values(columnsTemp)
-                                    .sort((a, b) => a.index - b.index)
-                                    .map((column, index) => {
+                                    .sort((a: any, b: any) => a.index - b.index)
+                                    .map((column: any, index) => {
                                         return (
                                             <div
                                                 key={column.id}
@@ -286,6 +292,7 @@ function ColumnSettings() {
                                                 name="columnName"
                                                 label="Column Name"
                                                 value={formData.columnName}
+                                                //@ts-ignore
                                                 onChange={handleFormChange}
                                                 error={errors.columnName}
                                                 placeholder="Column Name"
@@ -316,6 +323,12 @@ function ColumnSettings() {
                                     </div>
                                 )}
                             </div>
+
+                            {loggedUser && (
+                                <div className="mb-4">
+                                    <InviteUser />
+                                </div>
+                            )}
 
                             <div className="flex gap-2 w-full justify-end mt-4">
                                 <IpadCursorBlockWrapper>
@@ -350,4 +363,4 @@ function ColumnSettings() {
     );
 }
 
-export default ColumnSettings;
+export default BoardSettings;

@@ -1,11 +1,11 @@
 import { createClient } from "@/utils/supabase/client";
 import { deepClone, groupByStatus, showToast } from "@/utils/utils";
-import { initialColumns } from "../zustand";
+import { initialColumns, StoreProps } from "../zustand";
 import { User } from "@/utils/types";
 
 const supabase = createClient();
 
-export const createBoardSlice = (set: any, get: any) => ({
+export const createBoardSlice = (set: Function, get: Function) => ({
     // STATE
     selectedBoardId: "",
     boards: [],
@@ -25,7 +25,7 @@ export const createBoardSlice = (set: any, get: any) => ({
                 throw new Error("No board ID returned from the server");
             }
 
-            set((state) => ({
+            set((state: StoreProps) => ({
                 ...state,
                 boards: data || [],
             }));
@@ -37,7 +37,7 @@ export const createBoardSlice = (set: any, get: any) => ({
             const errorMessage = error?.message
                 ? error?.message
                 : "An unexpected error occurred while loading boards";
-            showToast(errorMessage, "Error");
+            showToast(errorMessage, "error");
             get().setIsLoading(false);
 
             return error instanceof Error
@@ -51,7 +51,7 @@ export const createBoardSlice = (set: any, get: any) => ({
             get().setIsLoading(true);
             const initalColumnsInit = deepClone(initialColumns);
 
-            set((state) => ({
+            set((state: StoreProps) => ({
                 ...state,
                 tickets: [],
                 columns: initalColumnsInit,
@@ -63,8 +63,6 @@ export const createBoardSlice = (set: any, get: any) => ({
                 .eq("board_id", boardId)
                 .eq("isActive", true);
 
-            console.log("🚀 ~ loadTicketsFromBoard: ~ data:", data);
-
             if (error) throw error;
 
             if (!data) {
@@ -73,7 +71,7 @@ export const createBoardSlice = (set: any, get: any) => ({
 
             const groupedData = groupByStatus(data);
 
-            set((state) => ({
+            set((state: StoreProps) => ({
                 ...state,
                 tickets: data,
                 columns: { ...initalColumnsInit, ...groupedData },
@@ -87,7 +85,7 @@ export const createBoardSlice = (set: any, get: any) => ({
             const errorMessage = error?.message
                 ? error?.message
                 : "An unexpected error occurred while loading tickets";
-            showToast(errorMessage, "Error");
+            showToast(errorMessage, "error");
             get().setIsLoading(false);
 
             return error instanceof Error
@@ -131,7 +129,102 @@ export const createBoardSlice = (set: any, get: any) => ({
             const errorMessage = error?.message
                 ? error?.message
                 : "An unexpected error occurred while creating the board";
-            showToast(errorMessage, "Error");
+            showToast(errorMessage, "error");
+            get().setIsLoading(false);
+
+            return error instanceof Error
+                ? error
+                : new Error("An unknown error occurred");
+        }
+    },
+
+    sendInvite: async (email: string): Promise<any | Error> => {
+        try {
+            // Check if the user is already registered
+            const getAllUsersResponse = await fetch("/api/getUserByEmail", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+            });
+            const getAllUsersData = await getAllUsersResponse.json();
+
+            if (getAllUsersData.error) {
+                throw new Error(getAllUsersData.error);
+            }
+
+            // If not we have to send the invitation
+            let invitationSent = false;
+            if (getAllUsersData.data === "User not found") {
+                const invitationResponse = await fetch("/api/sendInvitation", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email }),
+                });
+
+                const invitationData = await invitationResponse.json();
+
+                if (
+                    invitationData.error &&
+                    invitationData.errorData.code !== "email_exists"
+                ) {
+                    throw new Error(invitationData.error);
+                }
+
+                invitationSent = true;
+            }
+
+            // If user exists or invitation was sent we can add the user to table "Users" and to the board
+            if (getAllUsersData.user || invitationSent) {
+                const userId = getAllUsersData.user.id;
+                const boardId = get().selectedBoardId;
+
+                const boardInsertData = await supabase.rpc(
+                    "insert_user_and_board_membership",
+                    {
+                        p_user_id: userId,
+                        p_user_name: email.split("@")[0],
+                        p_board_id: boardId,
+                    }
+                );
+
+                if (boardInsertData.error) {
+                    if (boardInsertData.error.code === "23505") {
+                        throw new Error(
+                            "This user is already registered to this board"
+                        );
+                    } else {
+                        throw new Error();
+                    }
+                }
+
+                if (boardInsertData.data) {
+                    showToast(
+                        "This user is already registered, so no invitation is neccessary, it is added to the board",
+                        "success"
+                    );
+                    return;
+                }
+            }
+        } catch (error: any) {
+            console.error("Error sending invitation:", error);
+
+            const errorMessage = error?.message
+                ? error?.message
+                : "An unexpected error occurred while sending the invitation";
+
+            if (error.message === "Email rate limit exceeded") {
+                showToast(
+                    "Sorry this is a DEMO app, so we have a rate limit of invites",
+                    "info"
+                );
+            } else {
+                showToast(errorMessage, "error");
+            }
+
             get().setIsLoading(false);
 
             return error instanceof Error

@@ -10,12 +10,16 @@ function IpadCursorBlockWrapper({
     type = "block",
     styles = {},
     className = "",
+    disabled = false,
+    onClick = () => {},
     ...props
 }: {
     children: React.ReactNode;
     type?: "block" | "text";
     styles?: Record<string, string>;
     className?: string;
+    disabled?: boolean;
+    onClick?: () => void;
     props?: React.HTMLAttributes<HTMLDivElement>;
 }) {
     const config: IpadCursorConfig = {};

@@ -5,6 +5,7 @@ import {
     IconHome,
     IconKey,
     IconUser,
+    IconUserPlus,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -29,6 +30,12 @@ function NoAuthMenu() {
                     <IpadCursorBlockWrapper className="my-1">
                         <Link className="btn btn-ghost w-full" href="/login">
                             <IconKey size={20} /> Login
+                        </Link>
+                    </IpadCursorBlockWrapper>
+
+                    <IpadCursorBlockWrapper className="my-1">
+                        <Link className="btn btn-ghost w-full" href="/signup">
+                            <IconUserPlus size={20} /> Register
                         </Link>
                     </IpadCursorBlockWrapper>
 

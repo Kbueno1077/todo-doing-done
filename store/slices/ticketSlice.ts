@@ -2,17 +2,17 @@ import { AssignedToTickets, Ticket } from "./../../utils/types";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@/utils/types";
 import { deepClone, groupByStatus, showToast } from "@/utils/utils";
-import { initialColumns } from "../zustand";
+import { initialColumns, StoreProps } from "../zustand";
 
 const supabase = createClient();
 
-export const createTicketSlice = (set: any, get: any) => ({
+export const createTicketSlice = (set: Function, get: Function) => ({
     // STATE
     tickets: [],
 
     //   ACTIONS
     createTicket: async (
-        ticket: any,
+        ticket: Ticket,
         selectedUsers: User[]
     ): Promise<any | Error> => {
         try {
@@ -38,12 +38,12 @@ export const createTicketSlice = (set: any, get: any) => ({
                 });
             });
 
-            const tickets = deepClone(get().tickets);
+            const tickets = deepClone(get().tickets) as Ticket[];
 
             tickets.push(data);
             const groupedTickets = groupByStatus(tickets);
 
-            set((state) => ({
+            set((state: StoreProps) => ({
                 ...state,
                 tickets,
                 columns: { ...initialColumns, ...groupedTickets },
@@ -56,7 +56,7 @@ export const createTicketSlice = (set: any, get: any) => ({
                 ? error?.message
                 : "An unexpected error occurred while creating the ticket";
 
-            showToast(errorMessage, "Error");
+            showToast(errorMessage, "error");
 
             await get().loadTicketsFromBoard(get().selectedBoardId);
 
@@ -67,7 +67,7 @@ export const createTicketSlice = (set: any, get: any) => ({
     },
 
     updateTicket: async (
-        ticket: { newTicket: any; isUpdateNeeded: boolean },
+        ticket: { newTicket: Ticket; isUpdateNeeded: boolean },
         users: { selectedUsers: User[]; isUpdateNeeded: boolean },
         comment?: string
     ): Promise<{ success: boolean } | Error> => {
@@ -89,18 +89,19 @@ export const createTicketSlice = (set: any, get: any) => ({
                 throw new Error("No board ID returned from the server");
             }
 
-            const tickets = deepClone(get().tickets);
+            const tickets = deepClone(get().tickets) as Ticket[];
             const index = tickets.findIndex(
                 (t: Ticket) => t.id === ticket.newTicket.id
             );
 
             const currentAssignedToTickets = deepClone(
-                tickets[index].AssignedToTickets
+                tickets[index].AssignedToTickets ?? []
             );
 
             tickets[index] = data;
 
             if (users.isUpdateNeeded) {
+                //@ts-ignore
                 tickets[index].AssignedToTickets = users.selectedUsers.map(
                     (user) => {
                         return {
@@ -110,11 +111,12 @@ export const createTicketSlice = (set: any, get: any) => ({
                     }
                 );
             } else {
+                //@ts-ignore
                 tickets[index].AssignedToTickets = currentAssignedToTickets;
             }
 
             const groupedTickets = groupByStatus(tickets);
-            set((state) => ({
+            set((state: StoreProps) => ({
                 ...state,
                 tickets,
                 columns: { ...initialColumns, ...groupedTickets },
@@ -128,7 +130,7 @@ export const createTicketSlice = (set: any, get: any) => ({
             const errorMessage = error?.message
                 ? error?.message
                 : "An unexpected error occurred while updating the ticket";
-            showToast(errorMessage, "Error");
+            showToast(errorMessage, "error");
 
             await get().loadTicketsFromBoard(get().selectedBoardId);
 
@@ -153,13 +155,13 @@ export const createTicketSlice = (set: any, get: any) => ({
                 throw new Error("No data returned from the update operation");
             }
 
-            const tickets = deepClone(get().tickets);
+            const tickets = deepClone(get().tickets) as Ticket[];
             const index = tickets.findIndex((t: Ticket) => t.id === ticketId);
 
             tickets.splice(index, 1);
 
             const groupedTickets = groupByStatus(tickets);
-            set((state) => ({
+            set((state: StoreProps) => ({
                 ...state,
                 tickets,
                 columns: { ...initialColumns, ...groupedTickets },
@@ -210,7 +212,7 @@ export const createTicketSlice = (set: any, get: any) => ({
 
             await get().loadTicketsFromBoard(get().selectedBoardId);
 
-            showToast(errorMessage, "Error");
+            showToast(errorMessage, "error");
             return error instanceof Error
                 ? error
                 : new Error("An unknown error occurred");

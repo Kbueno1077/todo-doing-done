@@ -1,10 +1,11 @@
 import { createClient } from "@/utils/supabase/client";
 import { UserProfile } from "@/utils/types";
 import { showToast } from "@/utils/utils";
+import { StoreProps } from "../zustand";
 
 const supabase = createClient();
 
-export const createUserSlice = (set: any, get: any) => ({
+export const createUserSlice = (set: Function, get: Function) => ({
     // STATE
     users: [],
     loggedUser: null,
@@ -20,14 +21,14 @@ export const createUserSlice = (set: any, get: any) => ({
                 throw new Error("No user ID returned from the server");
             }
 
-            set((state) => ({ ...state, users: data || [] }));
+            set((state: StoreProps) => ({ ...state, users: data || [] }));
             return data;
         } catch (error: any) {
             console.error("Error loading users:", error);
             const errorMessage = error?.message
                 ? error?.message
                 : "An unexpected error occurred while loading users";
-            showToast(errorMessage, "Error");
+            showToast(errorMessage, "error");
 
             return error instanceof Error
                 ? error
@@ -36,6 +37,6 @@ export const createUserSlice = (set: any, get: any) => ({
     },
 
     setLoggedUser: (user: UserProfile | null) => {
-        set((state) => ({ ...state, loggedUser: user }));
+        set((state: StoreProps) => ({ ...state, loggedUser: user }));
     },
 });

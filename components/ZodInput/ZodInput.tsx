@@ -7,7 +7,7 @@ interface ZodInputProps
     label: string;
     schema: z.ZodType<any>;
     value: string;
-    onChange: (name: any, value: string) => void;
+    onChange: (name: string, value: string) => void;
     error?: string;
     useLabel?: boolean;
 }

@@ -1,8 +1,8 @@
-import { Filter } from "@/utils/types";
+import { AssignedToTickets, Filter, Ticket } from "@/utils/types";
 import { groupByStatus } from "@/utils/utils";
-import { initialColumns } from "../zustand";
+import { initialColumns, StoreProps } from "../zustand";
 
-export const createFiltersSlice = (set: any, get: any) => ({
+export const createFiltersSlice = (set: Function, get: Function) => ({
     //   STATES
     filters: {},
 
@@ -10,7 +10,7 @@ export const createFiltersSlice = (set: any, get: any) => ({
     resetFilters: () => {
         const groupedData = groupByStatus(get().tickets);
 
-        set((state) => ({
+        set((state: StoreProps) => ({
             ...state,
             filters: {},
             columns: { ...initialColumns, ...groupedData },
@@ -20,12 +20,12 @@ export const createFiltersSlice = (set: any, get: any) => ({
     applyFilters: async (filters: Filter) => {
         const tickets = get().tickets;
 
-        const filteredTickets = tickets.filter((ticket: any) => {
+        const filteredTickets = tickets.filter((ticket: Ticket) => {
             let isStatusMatch = true;
             let isPriorityMatch = true;
             let isAssignedMatch = true;
 
-            if (filters.status && filters.status.length > 0) {
+            if (filters.status && filters.status.length > 0 && ticket.status) {
                 isStatusMatch = filters.status.includes(ticket.status);
             }
 
@@ -41,8 +41,9 @@ export const createFiltersSlice = (set: any, get: any) => ({
 
             if (filters.assignedTo && filters.assignedTo.length > 0) {
                 isAssignedMatch = filters.assignedTo.some((user) =>
-                    ticket.AssignedToTickets.some(
-                        (assigned) => assigned.Users.id === user.id
+                    ticket.AssignedToTickets?.some(
+                        (assigned: AssignedToTickets) =>
+                            assigned.Users.id === user.id
                     )
                 );
             }
@@ -52,7 +53,7 @@ export const createFiltersSlice = (set: any, get: any) => ({
 
         const groupedData = groupByStatus(filteredTickets);
 
-        set((state) => ({
+        set((state: StoreProps) => ({
             ...state,
             columns: { ...initialColumns, ...groupedData },
             filters,
