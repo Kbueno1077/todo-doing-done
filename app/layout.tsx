@@ -36,7 +36,7 @@ export const metadata: Metadata = {
         title: "Project Management Board",
         description:
             "Manage your projects efficiently with our tool, featuring boards and tickets.",
-        image: "https://kbueno-studios.com/twitter-image.jpg",
+        // image: "https://kbueno-studios.com/twitter-image.jpg",
     },
 };
 
