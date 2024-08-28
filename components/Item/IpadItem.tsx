@@ -33,6 +33,10 @@ const IpadItem: React.FC<IpadItemProps> = ({
 }) => {
     const users = ticket.AssignedToTickets?.map((assigned) => assigned.Users);
 
+    if (!ticket.id) {
+        return null;
+    }
+
     return (
         <Draggable draggableId={ticket.id} index={index}>
             {(provided) => (

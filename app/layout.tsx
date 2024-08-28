@@ -12,11 +12,11 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
     metadataBase: new URL(defaultUrl),
-    title: "Project Management Board",
+    title: "Todo-Doing-Done",
     description:
         "A project management tool similar to Trello or Jira, featuring tickets and boards.",
     openGraph: {
-        title: "Project Management Board",
+        title: "Todo-Doing-Done, Project Management Board",
         description:
             "Manage your projects efficiently with our tool, featuring boards and tickets.",
         url: "https://kbueno-studios.com",
