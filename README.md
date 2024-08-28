@@ -44,6 +44,8 @@ You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](http
 
 ## DataBase Model
 
+[DataBase Model](https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/app-public/schema_video.mp4?t=2024-08-27T22%3A31%3A04.354Z)
+
 <a href="https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/app-public/schema_video.mp4?t=2024-08-27T22%3A31%3A04.354Z">
   <video alt="DataBase Schema Video" src="https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/app-public/schema_video.mp4?t=2024-08-27T22%3A31%3A04.354Z">
 </a>

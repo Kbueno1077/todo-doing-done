@@ -146,6 +146,7 @@ function CreateBoard() {
                                             name="name"
                                             label="Board Name"
                                             value={formData.name}
+                                            //@ts-ignore
                                             onChange={handleChange}
                                             error={errors.name}
                                             placeholder="Board Name"

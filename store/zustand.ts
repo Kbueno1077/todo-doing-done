@@ -84,6 +84,30 @@ export const initialColumns: Record<string, GroupedItem> = {
         list: [],
         index: 2,
     },
+
+    // Todo2: { id: "Todo2", list: [], index: 0 },
+    // Doing2: {
+    //     id: "Doing2",
+    //     list: [],
+    //     index: 1,
+    // },
+    // Done2: {
+    //     id: "Done2",
+    //     list: [],
+    //     index: 2,
+    // },
+
+    // Todo3: { id: "Todo3", list: [], index: 0 },
+    // Doing3: {
+    //     id: "Doing3",
+    //     list: [],
+    //     index: 1,
+    // },
+    // Done3: {
+    //     id: "Done3",
+    //     list: [],
+    //     index: 2,
+    // },
 };
 
 export const createTicketStore = (initProps: InitialProps) => {
