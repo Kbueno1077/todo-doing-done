@@ -40,7 +40,7 @@ This project is a feature-rich project management board inspired by popular tool
 
 ## Demo
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+You can view a fully working demo at [Demo](https://todo-doing-done.kbueno-studio.com/demo).
 
 ## DataBase Model
 
