@@ -87,6 +87,7 @@ function InviteUser() {
                         name="email"
                         label="User Email"
                         value={formData.email}
+                        //@ts-ignore
                         onChange={handleFormChange}
                         error={errors.email}
                         placeholder="User Email"
