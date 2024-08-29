@@ -1,12 +1,12 @@
 import { User } from "@/utils/types";
-import React from "react";
+import React, { Fragment } from "react";
 
 function GroupedAvatars({ assignedTo }: { assignedTo: User[] }) {
     return (
         <>
             <div className="avatar-group -space-x-6 rtl:space-x-reverse">
                 {assignedTo.map((assignedTo, index) => (
-                    <>
+                    <Fragment key={assignedTo.id}>
                         {index < 2 && (
                             <div className="avatar" key={assignedTo.id}>
                                 <div className="w-8 rounded">
@@ -19,7 +19,7 @@ function GroupedAvatars({ assignedTo }: { assignedTo: User[] }) {
                                 </div>
                             </div>
                         )}
-                    </>
+                    </Fragment>
                 ))}
 
                 {assignedTo.length > 2 && (

@@ -58,6 +58,7 @@ export interface StoreProps {
     //Misc
     //Type for Set Columns is different from the setColumnsStatic as setColumns is used when Drag and Drop
     setColumns: (columns: Function) => void;
+    setTickets: (tickets: Ticket[]) => void;
     setColumnsStatic: (columns: Record<string, GroupedItem>) => void;
     setIsLoading: (isLoading: boolean) => void;
     setCursorType: (cursorType: "Ipad" | "Pointer") => void;
@@ -157,6 +158,13 @@ export const createTicketStore = (initProps: InitialProps) => {
                     }));
                 },
 
+                setTickets: (tickets: Ticket[]) => {
+                    set((state: StoreProps) => ({
+                        ...state,
+                        tickets: tickets,
+                    }));
+                },
+
                 setCursorType: (cursorType: "Ipad" | "Pointer") => {
                     if (isMobileOrTablet()) {
                         set((state: StoreProps) => ({
@@ -181,6 +189,7 @@ export const createTicketStore = (initProps: InitialProps) => {
                 partialize: (state) => ({
                     cursorType: state.cursorType,
                     selectedBoardId: state.selectedBoardId,
+                    columns: state.columns,
                 }),
             }
         )

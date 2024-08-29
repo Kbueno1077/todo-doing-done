@@ -19,7 +19,7 @@ import ZodTextarea from "@/components/ZodTextarea/ZodTextarea";
 import { useStoreContext } from "@/store/useStoreContext";
 import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
-import { z } from "zod";
+import { set, z } from "zod";
 import DeleteTicket from "./DeleteTicket";
 
 interface AddTicketProps {
@@ -119,6 +119,32 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         }
     };
 
+    const openAssigneedDropDown = (e: any) => {
+        document.addEventListener("click", openDropDownListener);
+        setIsDropDownOpen(true);
+    };
+
+    const openStatusDropDown = (e: any) => {
+        document.addEventListener("click", openStatusDropDownListener);
+        setIsStatusDropDownOpen(true);
+    };
+
+    const openStatusDropDownListener = (e: any) => {
+        const dropdown = document.getElementById("StatusDropDown");
+        if (dropdown && !dropdown.contains(e.target)) {
+            setIsStatusDropDownOpen(false);
+            document.removeEventListener("click", openStatusDropDownListener);
+        }
+    };
+
+    const openDropDownListener = (e: any) => {
+        const dropdown = document.getElementById("AssigneedDropDown");
+        if (dropdown && !dropdown.contains(e.target)) {
+            setIsDropDownOpen(false);
+            document.removeEventListener("click", openDropDownListener);
+        }
+    };
+
     async function openModal() {
         document.addEventListener("keydown", handleKeyDown);
         setIsLoadingComments(true);
@@ -141,6 +167,8 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
     }
 
     function closeModal() {
+        document.removeEventListener("click", openDropDownListener);
+        document.removeEventListener("click", openStatusDropDownListener);
         document.removeEventListener("keydown", handleKeyDown);
         setPriority(ticket.priority || 0);
         setSelectedUsers(
@@ -335,16 +363,15 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                     </div>
 
                                     <div>
-                                        <div className="dropdown ml-2">
+                                        <div
+                                            id="StatusDropDown"
+                                            className="dropdown ml-2"
+                                        >
                                             <div className="flex gap-2 items-center">
                                                 <button
                                                     className="btn m-1"
                                                     disabled={isLoading}
-                                                    onClick={() =>
-                                                        setIsStatusDropDownOpen(
-                                                            !isStatusDropDownOpen
-                                                        )
-                                                    }
+                                                    onClick={openStatusDropDown}
                                                 >
                                                     Status: {selectedStatus}
                                                 </button>
@@ -397,15 +424,16 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                             )}
                                         </div>
 
-                                        <div className="dropdown">
+                                        <div
+                                            id="AssigneedDropDown"
+                                            className="dropdown"
+                                        >
                                             <div className="flex gap-2 items-center">
                                                 <button
                                                     className="btn m-1"
                                                     disabled={isLoading}
-                                                    onClick={() =>
-                                                        setIsDropDownOpen(
-                                                            !isDropDownOpen
-                                                        )
+                                                    onClick={
+                                                        openAssigneedDropDown
                                                     }
                                                 >
                                                     Assign To (
@@ -471,7 +499,16 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                     {!isLoadingComments && (
                                         <div className="my-4">
                                             <div className="collapse bg-base-200 sm:px-3">
-                                                <input type="checkbox" />
+                                                <input
+                                                    type="checkbox"
+                                                    style={{
+                                                        zIndex:
+                                                            isDropDownOpen ||
+                                                            isStatusDropDownOpen
+                                                                ? 0
+                                                                : 10,
+                                                    }}
+                                                />
 
                                                 <h3 className="my-2 collapse-title text-xl font-medium ">
                                                     Comments ({comments?.length}

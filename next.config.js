@@ -9,6 +9,11 @@ const nextConfig = {
                 hostname: "img.daisyui.com",
                 pathname: "**",
             },
+            {
+                protocol: "https",
+                hostname: "sxfpasuclnlqrljkmjdc.supabase.co",
+                pathname: "**",
+            },
         ],
     },
 };

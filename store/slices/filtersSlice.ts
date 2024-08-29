@@ -1,6 +1,6 @@
 import { AssignedToTickets, Filter, Ticket } from "@/utils/types";
 import { groupByStatus } from "@/utils/utils";
-import { initialColumns, StoreProps } from "../zustand";
+import { StoreProps } from "../zustand";
 
 export const createFiltersSlice = (set: Function, get: Function) => ({
     //   STATES
@@ -8,12 +8,12 @@ export const createFiltersSlice = (set: Function, get: Function) => ({
 
     //   ACTIONS
     resetFilters: () => {
-        const groupedData = groupByStatus(get().tickets);
+        const groupedData = groupByStatus(get().tickets, get().columns);
 
         set((state: StoreProps) => ({
             ...state,
             filters: {},
-            columns: { ...initialColumns, ...groupedData },
+            columns: { ...get().columns, ...groupedData },
         }));
     },
 
@@ -51,11 +51,11 @@ export const createFiltersSlice = (set: Function, get: Function) => ({
             return isStatusMatch && isPriorityMatch && isAssignedMatch;
         });
 
-        const groupedData = groupByStatus(filteredTickets);
+        const groupedData = groupByStatus(filteredTickets, get().columns);
 
         set((state: StoreProps) => ({
             ...state,
-            columns: { ...initialColumns, ...groupedData },
+            columns: { ...get().columns, ...groupedData },
             filters,
         }));
     },

@@ -7,20 +7,33 @@ export function groupByStatus(
 ): Record<string, GroupedItem> {
     if (!array) return {};
 
+    let latestIndex = Math.max(
+        ...Object.values(initialColumnsData).map((col) => col.index),
+        -1
+    );
+
     return array.reduce((groups: Record<string, GroupedItem>, item: Ticket) => {
         const status = item.status;
         if (!groups[status]) {
-            groups[status] = {
-                id: status,
-                list: [],
-                index: initialColumnsData[status].index,
-            };
+            if (initialColumnsData[status]) {
+                groups[status] = {
+                    id: status,
+                    list: [],
+                    index: initialColumnsData[status].index,
+                };
+            } else {
+                latestIndex++;
+                groups[status] = {
+                    id: status,
+                    list: [],
+                    index: latestIndex,
+                };
+            }
         }
         groups[status].list.push(item);
         return groups;
     }, {});
 }
-
 export const deepClone = (originalObject: Object) => {
     const deepCopy = structuredClone(originalObject);
     return deepCopy;

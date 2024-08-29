@@ -3,6 +3,8 @@
 import Column from "@/components/Column/Column";
 import { useStoreContext } from "@/store/useStoreContext";
 import { StoreProps } from "@/store/zustand";
+import { Ticket } from "@/utils/types";
+import { deepClone } from "@/utils/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
@@ -19,6 +21,8 @@ function TicketsDashboard() {
         setColumns,
         moveTicket,
         isGlobalLoading,
+        tickets,
+        setTickets,
     } = useStoreContext((s) => {
         return {
             columns: s.columns,
@@ -28,6 +32,8 @@ function TicketsDashboard() {
             loadAllBoards: s.loadAllBoards,
             moveTicket: s.moveTicket,
             isGlobalLoading: s.isGlobalLoading,
+            tickets: s.tickets,
+            setTickets: s.setTickets,
         };
     });
 
@@ -68,7 +74,6 @@ function TicketsDashboard() {
 
     const onDragEnd = ({ source, destination }: DropResult) => {
         // Make sure we have a valid destination
-
         if (destination === undefined || destination === null) {
             return null;
         }
@@ -99,19 +104,16 @@ function TicketsDashboard() {
             // Then create a new copy of the column object
             const newCol = {
                 id: start.id,
+                index: start.index,
                 list: newList,
             };
-
-            const movedTicket = columns[source.droppableId].list[source.index];
-            const newStatus = destination.droppableId;
-
-            moveTicket(movedTicket.id ?? "", newStatus);
 
             // Update the state
             setColumns((state: StoreProps) => ({
                 ...state,
                 [newCol.id]: newCol,
             }));
+
             return null;
         } else {
             // If start is different from end, we need to update multiple columns
@@ -123,6 +125,7 @@ function TicketsDashboard() {
             // Create a new start column
             const newStartCol = {
                 id: start.id,
+                index: start.index,
                 list: newStartList,
             };
 
@@ -135,20 +138,30 @@ function TicketsDashboard() {
             // Create a new end column
             const newEndCol = {
                 id: end.id,
+                index: end.index,
                 list: newEndList,
             };
 
             const movedTicket = columns[source.droppableId].list[source.index];
             const newStatus = destination.droppableId;
 
-            moveTicket(movedTicket.id ?? "", newStatus);
+            const updateTickets = deepClone(tickets) as Ticket[];
+            const updateTicketIndex = updateTickets.findIndex(
+                (t) => t.id === movedTicket.id
+            );
+            updateTickets[updateTicketIndex].status = newStatus;
 
             // Update the state
+            setTickets(updateTickets);
             setColumns((state: StoreProps) => ({
                 ...state,
                 [newStartCol.id]: newStartCol,
                 [newEndCol.id]: newEndCol,
             }));
+
+            // Update in BD
+            moveTicket(movedTicket.id ?? "", newStatus);
+
             return null;
         }
     };
@@ -168,8 +181,11 @@ function TicketsDashboard() {
             >
                 {isLoading || isGlobalLoading ? (
                     <>
-                        {Object.values(columns).map((_) => (
-                            <div className="skeleton h-full w-full"></div>
+                        {Object.values(columns).map((col) => (
+                            <div
+                                key={col.id}
+                                className="skeleton h-full w-full"
+                            ></div>
                         ))}
                     </>
                 ) : (

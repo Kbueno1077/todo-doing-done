@@ -8,6 +8,7 @@ import {
     IconBrandGithub,
     IconUserScan,
 } from "@tabler/icons-react";
+import Image from "next/image";
 
 function Footer() {
     function openLinkedin() {
@@ -29,7 +30,16 @@ function Footer() {
         <>
             <footer className="footer footer-center bg-primary/80 text-primary-content mt-20 p-10">
                 <aside>
-                    <IconLayoutCards size={60} />
+                    <div className="w-[200px] h-[200px]">
+                        <Image
+                            src="https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/app-public/logo.png"
+                            alt=""
+                            width={1024}
+                            height={1024}
+                            quality={100}
+                            className="rounded-box object-cover object-center"
+                        />
+                    </div>
                     <IpadCursorBlockWrapper type="text">
                         <p className="font-bold">
                             Kevin Bueno Studios.

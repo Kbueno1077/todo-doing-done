@@ -9,6 +9,7 @@ import {
     IconSquareArrowDown,
     IconSquareArrowUp,
     IconTableColumn,
+    IconBackspace,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { z } from "zod";
@@ -179,6 +180,27 @@ function BoardSettings() {
         return obj;
     }
 
+    const removeColumn = (columnId: string) => {
+        const newColumns = deepClone(columnsTemp) as Record<
+            string,
+            GroupedItem
+        >;
+
+        const firstColumn = Object.entries(newColumns).find(
+            (column) => column[1].index === 0
+        );
+
+        if (firstColumn && firstColumn[0]) {
+            newColumns[firstColumn[0]].list = [
+                ...newColumns[firstColumn[0]].list,
+                ...newColumns[columnId].list,
+            ];
+            delete newColumns[columnId];
+
+            setColumnsTemp(newColumns);
+        }
+    };
+
     const handleSubmit = () => {
         setColumnsStatic(columnsTemp);
         closeModal();
@@ -220,45 +242,90 @@ function BoardSettings() {
                                                 <div className="flex gap-2 w-full">
                                                     <div className="join w-full">
                                                         <IpadCursorBlockWrapper
-                                                            disabled={
-                                                                index === 0
-                                                            }
                                                             onClick={() =>
                                                                 updateIndices(
                                                                     column.id,
                                                                     "up"
                                                                 )
                                                             }
-                                                            className="btn join-item w-1/4"
+                                                            className={`btn join-item w-1/4 ${
+                                                                index === 0 &&
+                                                                "btn-disabled"
+                                                            }`}
                                                         >
-                                                            <button>
+                                                            <button
+                                                                disabled={
+                                                                    index === 0
+                                                                }
+                                                                className="w-full flex justify-center items-center"
+                                                                onClick={() =>
+                                                                    updateIndices(
+                                                                        column.id,
+                                                                        "up"
+                                                                    )
+                                                                }
+                                                            >
                                                                 <IconSquareArrowUp
                                                                     size={20}
                                                                 />
                                                             </button>
                                                         </IpadCursorBlockWrapper>
-                                                        <IpadCursorBlockWrapper className="btn join-item w-2/4">
-                                                            <button>
-                                                                {column.id}
+                                                        <IpadCursorBlockWrapper
+                                                            className={`btn join-item w-2/4 ${
+                                                                Object.values(
+                                                                    columnsTemp
+                                                                ).length ===
+                                                                    1 &&
+                                                                "btn-disabled"
+                                                            }`}
+                                                        >
+                                                            <button
+                                                                disabled={
+                                                                    Object.values(
+                                                                        columnsTemp
+                                                                    ).length ===
+                                                                    1
+                                                                }
+                                                                onClick={() =>
+                                                                    removeColumn(
+                                                                        column.id
+                                                                    )
+                                                                }
+                                                                className="w-full flex justify-center items-center"
+                                                            >
+                                                                {column.id}{" "}
+                                                                <IconBackspace
+                                                                    className="text-error ml-2"
+                                                                    size={24}
+                                                                />
                                                             </button>
                                                         </IpadCursorBlockWrapper>
                                                         <IpadCursorBlockWrapper
-                                                            onClick={() =>
-                                                                updateIndices(
-                                                                    column.id,
-                                                                    "down"
-                                                                )
-                                                            }
-                                                            disabled={
+                                                            className={`btn join-item w-1/4 ${
                                                                 index ===
-                                                                Object.values(
-                                                                    columnsTemp
-                                                                ).length -
-                                                                    1
-                                                            }
-                                                            className="btn join-item w-1/4"
+                                                                    Object.values(
+                                                                        columnsTemp
+                                                                    ).length -
+                                                                        1 &&
+                                                                "btn-disabled"
+                                                            }`}
                                                         >
-                                                            <button>
+                                                            <button
+                                                                disabled={
+                                                                    index ===
+                                                                    Object.values(
+                                                                        columnsTemp
+                                                                    ).length -
+                                                                        1
+                                                                }
+                                                                className="w-full flex justify-center items-center"
+                                                                onClick={() =>
+                                                                    updateIndices(
+                                                                        column.id,
+                                                                        "down"
+                                                                    )
+                                                                }
+                                                            >
                                                                 <IconSquareArrowDown
                                                                     size={20}
                                                                 />

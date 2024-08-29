@@ -1,8 +1,8 @@
-import { AssignedToTickets, Ticket } from "./../../utils/types";
 import { createClient } from "@/utils/supabase/client";
-import { User } from "@/utils/types";
+import { GroupedItem, User } from "@/utils/types";
 import { deepClone, groupByStatus, showToast } from "@/utils/utils";
-import { initialColumns, StoreProps } from "../zustand";
+import { StoreProps } from "../zustand";
+import { Ticket } from "./../../utils/types";
 
 const supabase = createClient();
 
@@ -41,12 +41,12 @@ export const createTicketSlice = (set: Function, get: Function) => ({
             const tickets = deepClone(get().tickets) as Ticket[];
 
             tickets.push(data);
-            const groupedTickets = groupByStatus(tickets);
+            const groupedTickets = groupByStatus(tickets, get().columns);
 
             set((state: StoreProps) => ({
                 ...state,
                 tickets,
-                columns: { ...initialColumns, ...groupedTickets },
+                columns: { ...get().columns, ...groupedTickets },
             }));
 
             return data;
@@ -115,11 +115,15 @@ export const createTicketSlice = (set: Function, get: Function) => ({
                 tickets[index].AssignedToTickets = currentAssignedToTickets;
             }
 
-            const groupedTickets = groupByStatus(tickets);
+            const columns = deepClone(get().columns) as Record<
+                string,
+                GroupedItem
+            >;
+            const groupedTickets = groupByStatus(tickets, columns);
             set((state: StoreProps) => ({
                 ...state,
                 tickets,
-                columns: { ...initialColumns, ...groupedTickets },
+                columns: { ...columns, ...groupedTickets },
             }));
 
             showToast("Ticket updated successfully", "success");
@@ -160,11 +164,15 @@ export const createTicketSlice = (set: Function, get: Function) => ({
 
             tickets.splice(index, 1);
 
-            const groupedTickets = groupByStatus(tickets);
+            const columns = deepClone(get().columns) as Record<
+                string,
+                GroupedItem
+            >;
+            const groupedTickets = groupByStatus(tickets, get().columns);
             set((state: StoreProps) => ({
                 ...state,
                 tickets,
-                columns: { ...initialColumns, ...groupedTickets },
+                columns: { ...columns, ...groupedTickets },
             }));
 
             showToast("Ticket deleted successfully", "success");
@@ -192,7 +200,7 @@ export const createTicketSlice = (set: Function, get: Function) => ({
     ): Promise<any | Error> => {
         try {
             const { data, error } = await supabase
-                .from("Tickets") // Replace 'tickets' with your actual table name
+                .from("Tickets")
                 .update({ status: newStatus })
                 .eq("id", ticketId)
                 .select();

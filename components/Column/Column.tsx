@@ -1,9 +1,10 @@
 import AddTicket from "@/modules/AddTicket/AddTicket";
 import OpenTicket from "@/modules/OpenTicket/OpenTicket";
 import { Ticket } from "@/utils/types";
-import React from "react";
+import React, { Fragment } from "react";
 import { Droppable } from "react-beautiful-dnd";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
+import { randomUUID } from "crypto";
 
 interface ColumnProps {
     id: string;
@@ -28,11 +29,15 @@ const Column: React.FC<ColumnProps> = ({ id, list }) => {
                         ref={provided.innerRef}
                     >
                         {list.map((ticket, index) => (
-                            <OpenTicket
-                                key={ticket.id}
-                                ticket={ticket}
-                                index={index}
-                            />
+                            <Fragment key={ticket.id || randomUUID()}>
+                                {ticket.id && (
+                                    <OpenTicket
+                                        key={ticket.id}
+                                        ticket={ticket}
+                                        index={index}
+                                    />
+                                )}
+                            </Fragment>
                         ))}
                         {provided.placeholder}
                     </div>

@@ -69,7 +69,7 @@ export const createBoardSlice = (set: Function, get: Function) => ({
                 throw new Error("No board ID returned from the server");
             }
 
-            const groupedData = groupByStatus(data);
+            const groupedData = groupByStatus(data, get().columns);
 
             set((state: StoreProps) => ({
                 ...state,
