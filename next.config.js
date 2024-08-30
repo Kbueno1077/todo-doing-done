@@ -2,7 +2,6 @@
 const nextConfig = {
     reactStrictMode: false,
     images: {
-        domains: ["api.microlink.io"],
         remotePatterns: [
             {
                 protocol: "https",
@@ -12,6 +11,11 @@ const nextConfig = {
             {
                 protocol: "https",
                 hostname: "sxfpasuclnlqrljkmjdc.supabase.co",
+                pathname: "**",
+            },
+            {
+                protocol: "https",
+                hostname: "api.microlink.io",
                 pathname: "**",
             },
         ],

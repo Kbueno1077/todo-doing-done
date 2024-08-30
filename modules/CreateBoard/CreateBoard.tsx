@@ -76,11 +76,15 @@ function CreateBoard() {
     };
     function openModal() {
         document.addEventListener("keydown", handleKeyDown);
+        document.body.classList.add("no-scroll");
+
         setIsOpen(true);
     }
 
     function closeModal() {
         document.removeEventListener("keydown", handleKeyDown);
+        document.body.classList.remove("no-scroll");
+
         setSelectedUsers([]);
         setErrors({});
         setFormData({ name: "" });

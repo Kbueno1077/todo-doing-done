@@ -147,6 +147,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
 
     async function openModal() {
         document.addEventListener("keydown", handleKeyDown);
+        document.body.classList.add("no-scroll");
         setIsLoadingComments(true);
 
         const supabase = createClient();
@@ -170,6 +171,8 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
         document.removeEventListener("click", openDropDownListener);
         document.removeEventListener("click", openStatusDropDownListener);
         document.removeEventListener("keydown", handleKeyDown);
+        document.body.classList.remove("no-scroll");
+
         setPriority(ticket.priority || 0);
         setSelectedUsers(
             ticket.AssignedToTickets?.map((assigned) => assigned.Users) || []
@@ -332,9 +335,16 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                         </div>
 
                                         <div className="">
-                                            <h3 className="text-lg my-2 ">
-                                                Priority
-                                            </h3>
+                                            <div className="flex items-center justify-between">
+                                                <h3 className="text-lg my-2 ">
+                                                    Priority
+                                                </h3>
+                                                <h3 className="text-lg my-2 ">
+                                                    {priority >= 0
+                                                        ? priority
+                                                        : "N/A"}
+                                                </h3>
+                                            </div>
                                             <input
                                                 type="range"
                                                 min={0}

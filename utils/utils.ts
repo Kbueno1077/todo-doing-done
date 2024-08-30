@@ -93,7 +93,7 @@ export function isMobileOrTablet() {
         "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
     // Check screen size
-    const isSmallScreen = window.innerWidth <= 1024; // Adjust this value as needed
+    const isSmallScreen = window.innerWidth <= 1024;
 
     // Check user agent string for common mobile/tablet keywords
     const userAgent = navigator.userAgent.toLowerCase();

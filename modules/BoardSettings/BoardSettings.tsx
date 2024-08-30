@@ -52,12 +52,16 @@ function BoardSettings() {
 
     function openModal() {
         document.addEventListener("keydown", handleKeyDown);
+        document.body.classList.add("no-scroll");
+
         setColumnsTemp(deepClone(columns));
         setIsOpen(true);
     }
 
     function closeModal() {
         document.removeEventListener("keydown", handleKeyDown);
+        document.body.classList.remove("no-scroll");
+
         setIsOpen(false);
     }
 

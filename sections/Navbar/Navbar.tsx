@@ -18,6 +18,7 @@ import {
 } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { isMobileOrTablet } from "@/utils/utils";
 
 function Navbar({ user }: { user: UserProfile | null }) {
     const {
@@ -72,7 +73,7 @@ function Navbar({ user }: { user: UserProfile | null }) {
     const isDasboardOrDemo = router === "/demo" || router === "/dashboard";
 
     return (
-        <div className="navbar bg-base-100 w-full ">
+        <div className="navbar bg-transparent w-full" style={{ zIndex: 10000 }}>
             {isDasboardOrDemo && (
                 <div className="navbar-start">
                     <div className="dropdown navbar-center cursor-none">
@@ -133,25 +134,30 @@ function Navbar({ user }: { user: UserProfile | null }) {
                     </div>
                 </div>
             )}
-            <div className="navbar-end w-full sm:mr-4 sm:gap-2">
+            <div className="navbar-end w-full sm:mr-4 gap-2">
                 {isDasboardOrDemo && <Filters />}
 
-                {cursorType === "Ipad" ? (
-                    <IpadCursorBlockWrapper>
-                        <button
-                            className="btn btn-ghost"
-                            onClick={disposePointer}
-                        >
-                            <IconPointer size={20} />
-                        </button>
-                    </IpadCursorBlockWrapper>
-                ) : (
-                    <IpadCursorBlockWrapper>
-                        <button className="btn btn-ghost" onClick={initPointer}>
-                            <IconInnerShadowBottomRight size={20} />
-                        </button>
-                    </IpadCursorBlockWrapper>
-                )}
+                <div className={`${isMobileOrTablet() && "hidden"}`}>
+                    {cursorType === "Ipad" ? (
+                        <IpadCursorBlockWrapper>
+                            <button
+                                className="btn btn-ghost"
+                                onClick={disposePointer}
+                            >
+                                <IconPointer size={20} />
+                            </button>
+                        </IpadCursorBlockWrapper>
+                    ) : (
+                        <IpadCursorBlockWrapper>
+                            <button
+                                className="btn btn-ghost"
+                                onClick={initPointer}
+                            >
+                                <IconInnerShadowBottomRight size={20} />
+                            </button>
+                        </IpadCursorBlockWrapper>
+                    )}
+                </div>
 
                 <ThemeController />
                 {loggedUser ? <AuthMenu /> : <NoAuthMenu />}

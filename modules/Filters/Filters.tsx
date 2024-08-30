@@ -67,6 +67,8 @@ function Filters() {
 
     function openModal() {
         document.addEventListener("keydown", handleKeyDown);
+        document.body.classList.add("no-scroll");
+
         setIsOpen(true);
     }
 
@@ -98,6 +100,8 @@ function Filters() {
 
     function closeModal() {
         document.removeEventListener("keydown", handleKeyDown);
+        document.body.classList.remove("no-scroll");
+
         setIsOpen(false);
     }
 
@@ -124,7 +128,14 @@ function Filters() {
 
                             <div className="flex flex-col gap-4 py-4">
                                 <div className="">
-                                    <h3 className="text-lg my-2 ">Priority</h3>
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg my-2 ">
+                                            Priority
+                                        </h3>
+                                        <h3 className="text-lg my-2 ">
+                                            {priority >= 0 ? priority : "N/A"}
+                                        </h3>
+                                    </div>
                                     <input
                                         type="range"
                                         min={-1}

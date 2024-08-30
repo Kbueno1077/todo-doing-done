@@ -94,11 +94,15 @@ function AddTicket({ status }: AddTicketProps) {
 
     function openModal() {
         document.addEventListener("keydown", handleKeyDown);
+        document.body.classList.add("no-scroll");
+
         setIsOpen(true);
     }
 
     function closeModal() {
         document.removeEventListener("keydown", handleKeyDown);
+        document.body.classList.remove("no-scroll");
+
         setPriority(0);
         setErrors({});
         setFormData({
@@ -212,7 +216,14 @@ function AddTicket({ status }: AddTicketProps) {
                                 </div>
 
                                 <div className="">
-                                    <h3 className="text-lg my-2 ">Priority</h3>
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg my-2 ">
+                                            Priority
+                                        </h3>
+                                        <h3 className="text-lg my-2 ">
+                                            {priority >= 0 ? priority : "N/A"}
+                                        </h3>
+                                    </div>
                                     <input
                                         type="range"
                                         min={0}
