@@ -91,12 +91,13 @@ function AuthMenu() {
                             <IconDeviceDesktop size={20} /> Demo
                         </Link>
                     </IpadCursorBlockWrapper>
-
+                    {/* 
                     <IpadCursorBlockWrapper className="my-1">
                         <Link className="btn btn-ghost w-full " href="/">
                             <IconSettings size={20} /> Settings
                         </Link>
-                    </IpadCursorBlockWrapper>
+                    </IpadCursorBlockWrapper> 
+                    */}
 
                     <IpadCursorBlockWrapper className="my-1">
                         <button

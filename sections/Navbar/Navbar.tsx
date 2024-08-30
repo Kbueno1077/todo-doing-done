@@ -73,7 +73,7 @@ function Navbar({ user }: { user: UserProfile | null }) {
     const isDasboardOrDemo = router === "/demo" || router === "/dashboard";
 
     return (
-        <div className="navbar bg-transparent w-full" style={{ zIndex: 10000 }}>
+        <div className="navbar bg-transparent w-full" style={{ zIndex: 1000 }}>
             {isDasboardOrDemo && (
                 <div className="navbar-start">
                     <div className="dropdown navbar-center cursor-none">
