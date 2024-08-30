@@ -21,6 +21,8 @@ import { useEffect } from "react";
 import { isMobileOrTablet } from "@/utils/utils";
 
 function Navbar({ user }: { user: UserProfile | null }) {
+    const router = usePathname();
+
     const {
         selectedBoardId,
         boards,
@@ -47,8 +49,6 @@ function Navbar({ user }: { user: UserProfile | null }) {
         setLoggedUser(user);
     }, [user]);
 
-    const router = usePathname();
-
     const changeBoard = async (boardId: string) => {
         if (boardId !== selectedBoardId) {
             await loadTicketsFromBoard(boardId);
@@ -73,7 +73,7 @@ function Navbar({ user }: { user: UserProfile | null }) {
     const isDasboardOrDemo = router === "/demo" || router === "/dashboard";
 
     return (
-        <div className="navbar bg-transparent w-full" style={{ zIndex: 1000 }}>
+        <div className="navbar bg-transparent w-full" style={{ zIndex: 1100 }}>
             {isDasboardOrDemo && (
                 <div className="navbar-start">
                     <div className="dropdown navbar-center cursor-none">
@@ -93,7 +93,7 @@ function Navbar({ user }: { user: UserProfile | null }) {
 
                                 <div
                                     tabIndex={0}
-                                    className="sm:hidden ml-3"
+                                    className="sm:hidden ml-3 mr-1"
                                     role="button"
                                 >
                                     <IconAlignJustified size={20} />
@@ -141,7 +141,7 @@ function Navbar({ user }: { user: UserProfile | null }) {
                     {cursorType === "Ipad" ? (
                         <IpadCursorBlockWrapper>
                             <button
-                                className="btn btn-ghost"
+                                className="btn btn-square btn-ghost rounded-md btn-sm sm:btn-md"
                                 onClick={disposePointer}
                             >
                                 <IconPointer size={20} />
@@ -150,7 +150,7 @@ function Navbar({ user }: { user: UserProfile | null }) {
                     ) : (
                         <IpadCursorBlockWrapper>
                             <button
-                                className="btn btn-ghost"
+                                className="btn btn-square btn-ghost btn-sm sm:btn-md rounded-md btn-sm"
                                 onClick={initPointer}
                             >
                                 <IconInnerShadowBottomRight size={20} />

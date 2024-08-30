@@ -171,7 +171,10 @@ function AddTicket({ status }: AddTicketProps) {
 
                             <div className="flex flex-col gap-4 py-4">
                                 <div className="flex gap-4">
-                                    <IconH1 size={30} />
+                                    <IconH1
+                                        className="hidden sm:block"
+                                        size={30}
+                                    />
 
                                     <IpadCursorBlockWrapper
                                         type="text"
@@ -193,7 +196,10 @@ function AddTicket({ status }: AddTicketProps) {
                                 </div>
 
                                 <div className="flex gap-4">
-                                    <IconArticle size={30} />
+                                    <IconArticle
+                                        className="hidden sm:block"
+                                        size={30}
+                                    />
 
                                     <IpadCursorBlockWrapper
                                         type="text"

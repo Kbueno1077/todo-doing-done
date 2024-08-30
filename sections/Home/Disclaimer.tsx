@@ -10,12 +10,12 @@ function Disclaimer() {
         >
             <IpadCursorBlockWrapper type="text">
                 <div className="container mx-auto">
-                    <div className="container mx-auto px-4 md:px-6">
-                        <h2 className="text-3xl font-bold text-center ">
+                    <div className="container mx-auto px-6 md:px-6 ">
+                        <h2 className="text-3xl  font-bold text-center ">
                             Disclaimer
                         </h2>
 
-                        <p className="mt-8 text-2xl">
+                        <p className="mt-8 text-xl sm:text-2xl">
                             This demonstration showcases the innovative
                             possibilities that can be achieved through creative
                             side projects. It serves as a platform to experiment
@@ -27,7 +27,7 @@ function Disclaimer() {
                             is currently disabled in this demo version.
                         </p>
 
-                        <p className="mt-8 text-xl">
+                        <p className="mt-8 text-xl sm:text-2xl">
                             You can check the source code at:{" "}
                             <LinkPreview
                                 url="https://github.com/Kbueno1077/todo-doing-done"

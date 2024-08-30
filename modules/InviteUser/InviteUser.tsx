@@ -75,8 +75,8 @@ function InviteUser() {
         <div>
             <IpadCursorBlockWrapper type="text">
                 <div className="flex gap-4 items-center py-4">
-                    <IconMailbox size={30} />
-                    <h1 className="font-bold text-2xl">Invite User</h1>
+                    <IconMailbox size={25} />
+                    <h1 className="font-bold text-xl">Invite User</h1>
                 </div>
             </IpadCursorBlockWrapper>
 

@@ -47,7 +47,7 @@ function AuthMenu() {
                     >
                         <div className="avatar-group -space-x-6 rtl:space-x-reverse">
                             <div className="avatar">
-                                <div className="w-12 rounded ">
+                                <div className="w-8 sm:w-12 rounded ">
                                     <img
                                         src={
                                             loggedUser.img ||

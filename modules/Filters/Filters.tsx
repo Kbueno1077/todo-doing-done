@@ -108,7 +108,10 @@ function Filters() {
     return (
         <>
             <IpadCursorBlockWrapper>
-                <button className="btn btn-ghost" onClick={openModal}>
+                <button
+                    className="btn btn-square btn-ghost rounded-md btn-sm sm:btn-md"
+                    onClick={openModal}
+                >
                     <IconFilter size={20} />
                 </button>
             </IpadCursorBlockWrapper>

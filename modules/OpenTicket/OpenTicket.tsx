@@ -289,8 +289,13 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                             {!isDeleteOpen ? (
                                 <>
                                     <div className="flex flex-col gap-4 py-4">
-                                        <div className="flex gap-4 py-4">
-                                            <IconH1 size={30} />
+                                        <div className="flex flex-col sm:flex-row  gap-2 sm:gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <IconH1 size={30} />
+                                                <h3 className="sm:hidden font-bold text-xl">
+                                                    Title
+                                                </h3>
+                                            </div>
 
                                             <IpadCursorBlockWrapper
                                                 type="text"
@@ -311,8 +316,13 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                             </IpadCursorBlockWrapper>
                                         </div>
 
-                                        <div className="flex gap-4">
-                                            <IconArticle size={30} />
+                                        <div className="flex flex-col sm:flex-row g gap-2 sm:gap-4 mt-2">
+                                            <div className="flex items-center gap-2">
+                                                <IconArticle size={30} />
+                                                <h3 className="sm:hidden font-bold text-xl">
+                                                    Description
+                                                </h3>
+                                            </div>
 
                                             <IpadCursorBlockWrapper
                                                 type="text"
@@ -372,10 +382,10 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                         </div>
                                     </div>
 
-                                    <div>
+                                    <div className="flex gap-2">
                                         <div
                                             id="StatusDropDown"
-                                            className="dropdown ml-2"
+                                            className="dropdown"
                                         >
                                             <div className="flex gap-2 items-center">
                                                 <button
@@ -596,8 +606,11 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                         </div>
                                     )}
 
-                                    <div className="flex gap-4 mt-2">
-                                        <IconMessage size={30} />
+                                    <div className="flex flex-col sm:flex-row  gap-2 sm:gap-4">
+                                        <IconMessage
+                                            className="hidden sm:block"
+                                            size={30}
+                                        />
 
                                         <IpadCursorBlockWrapper
                                             type="text"

@@ -1,5 +1,3 @@
-"use client";
-
 import {
     IconDeviceDesktop,
     IconHome,
@@ -8,17 +6,14 @@ import {
     IconUserPlus,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 
 function NoAuthMenu() {
-    const router = usePathname();
-
     return (
         <>
             <div className="dropdown dropdown-end">
                 <IpadCursorBlockWrapper>
-                    <button className="btn btn-ghost">
+                    <button className="btn btn-square btn-ghost btn-sm sm:btn-md rounded-md btn-sm">
                         <IconUser size={20} />
                     </button>
                 </IpadCursorBlockWrapper>

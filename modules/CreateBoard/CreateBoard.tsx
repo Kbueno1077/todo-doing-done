@@ -138,8 +138,11 @@ function CreateBoard() {
                             </IpadCursorBlockWrapper>
 
                             <div className="flex flex-col gap-4 py-4">
-                                <div className="flex gap-4">
-                                    <IconH1 size={30} />
+                                <div className="flex  gap-4">
+                                    <IconH1
+                                        className="hidden sm:block"
+                                        size={30}
+                                    />
 
                                     <IpadCursorBlockWrapper
                                         type="text"

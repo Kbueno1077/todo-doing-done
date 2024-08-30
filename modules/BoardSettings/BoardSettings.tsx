@@ -227,8 +227,8 @@ function BoardSettings() {
                         <div className="w-full sm:w-3/4 max-w-[1280px] bg-base-300 rounded-md p-4 sm:p-8 flex flex-col my-4">
                             <IpadCursorBlockWrapper type="text">
                                 <div className="flex gap-4 items-center py-4">
-                                    <IconTableColumn size={30} />
-                                    <h1 className="font-bold text-2xl">
+                                    <IconTableColumn size={25} />
+                                    <h1 className="font-bold text-xl ">
                                         Board Settings
                                     </h1>
                                 </div>

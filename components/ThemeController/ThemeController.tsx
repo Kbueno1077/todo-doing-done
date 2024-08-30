@@ -64,7 +64,7 @@ function ThemeController() {
                     <div
                         tabIndex={0}
                         role="button"
-                        className="btn bg-primary text-primary-content hover:text-primary"
+                        className="btn btn-square btn-ghost rounded-md btn-sm sm:btn-md bg-primary text-primary-content hover:text-primary hover:bg-base-100"
                     >
                         <div className="flex items-center space-x-2">
                             <IconPalette size={20} />

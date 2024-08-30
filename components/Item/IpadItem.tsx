@@ -47,7 +47,7 @@ const IpadItem: React.FC<IpadItemProps> = ({
                 >
                     <IpadCursorBlockWrapper>
                         <div
-                            className="w-full bg-primary/20 rounded-md py-4 px-2 flex flex-col mt-2"
+                            className="w-full bg-primary/20 rounded-md py-2 sm:py-4 px-2 flex flex-col mt-2"
                             onClick={() => {
                                 console.log(`Clicked item: ${ticket.id}`);
                                 onClick();
@@ -65,7 +65,7 @@ const IpadItem: React.FC<IpadItemProps> = ({
                                 </p>
                             </div>
 
-                            <div className="divider" />
+                            <div className="divider my-0 sm:divider" />
 
                             <div className="flex justify-between items-center">
                                 {renderPriorityIcon(ticket.priority || 0)}{" "}
