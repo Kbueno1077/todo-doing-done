@@ -1,15 +1,13 @@
 import IpadCursorBlockWrapper from "@/components/IpadCursorWrapper/IpadCursorWrapper";
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
-import { IconLayoutCards } from "@tabler/icons-react";
 import Link from "next/link";
-import React from "react";
 
 function Hero() {
     return (
         <BackgroundGradientAnimation>
             <section>
                 <div
-                    className="px-5 sm:px-10 absolute bottom-[50px] md:bottom-[80px] left-0"
+                    className="px-5 overflow-x-hidden sm:px-10 absolute bottom-[50px] md:bottom-[80px] left-0"
                     style={{ zIndex: 1000 }}
                 >
                     <div className="max-w-lg">

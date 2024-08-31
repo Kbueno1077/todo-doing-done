@@ -2,7 +2,7 @@ import Footer from "@/sections/Footer/Footer";
 import Navbar from "@/sections/Navbar/Navbar";
 import { createClient } from "@/utils/supabase/server";
 import { GeistSans } from "geist/font/sans";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -39,6 +39,14 @@ export const metadata: Metadata = {
         // image: "https://kbueno-studios.com/twitter-image.jpg",
     },
 };
+
+// export const viewport: Viewport = {
+//     initialScale: 1,
+//     maximumScale: 1,
+//     width: "device-width",
+//     viewportFit: "cover",
+//     userScalable: false,
+// };
 
 export default async function RootLayout({
     children,

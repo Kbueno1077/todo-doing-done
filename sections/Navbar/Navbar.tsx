@@ -150,7 +150,7 @@ function Navbar({ user }: { user: UserProfile | null }) {
                     ) : (
                         <IpadCursorBlockWrapper>
                             <button
-                                className="btn btn-square btn-ghost btn-sm sm:btn-md rounded-md btn-sm"
+                                className="btn btn-square btn-ghost btn-sm sm:btn-md rounded-md"
                                 onClick={initPointer}
                             >
                                 <IconInnerShadowBottomRight size={20} />

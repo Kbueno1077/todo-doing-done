@@ -1,5 +1,5 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Todo-Doing-Done Logo" src="https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/app-public/logo.png">
+<a href="https://todo-doing-done.kbueno-studio.com/">
+  <img alt="Todo-Doing-Done Logo" src=/logo.png">
   <h1 align="center">Todo-Doing-Done</h1>
 </a>
 
@@ -44,10 +44,10 @@ You can view a fully working demo at [Demo](https://todo-doing-done.kbueno-studi
 
 ## DataBase Model
 
-[DataBase Model](https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/app-public/schema_video.mp4?t=2024-08-27T22%3A31%3A04.354Z)
+[DataBase Model](/schema_video.mp4)
 
-<a href="https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/app-public/schema_video.mp4?t=2024-08-27T22%3A31%3A04.354Z">
-  <video alt="DataBase Schema Video" src="https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/app-public/schema_video.mp4?t=2024-08-27T22%3A31%3A04.354Z">
+<a href="/schema_video.mp4">
+  <video alt="DataBase Schema Video" src="/schema_video.mp4">
 </a>
 
 ## Roadmap

@@ -8,7 +8,7 @@ function Home() {
     return (
         <div className="flex flex-col">
             <main className="">
-                {/* <Hero /> */}
+                <Hero />
                 <Features />
                 <Steps />
                 <Disclaimer />

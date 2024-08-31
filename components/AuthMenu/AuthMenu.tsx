@@ -1,18 +1,16 @@
 "use client";
 
+import { useStoreContext } from "@/store/useStoreContext";
 import { createClient } from "@/utils/supabase/client";
-import { UserProfile } from "@/utils/types";
 import {
-    IconLogout2,
     IconDeviceDesktop,
-    IconLayoutCards,
-    IconSettings,
     IconHome,
+    IconLayoutCards,
+    IconLogout2,
 } from "@tabler/icons-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
-import Link from "next/link";
-import { useStoreContext } from "@/store/useStoreContext";
 
 function AuthMenu() {
     const router = useRouter();

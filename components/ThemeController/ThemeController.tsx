@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { IconPalette } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import { themeChange } from "theme-change";
-import { IconChevronDown, IconPalette } from "@tabler/icons-react";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 
 const themes = [

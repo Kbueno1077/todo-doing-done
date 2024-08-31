@@ -32,7 +32,7 @@ function Footer() {
                 <aside>
                     <div className="w-[200px] h-[200px]">
                         <Image
-                            src="https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/app-public/logo.png"
+                            src="/logo.png"
                             alt=""
                             width={1024}
                             height={1024}

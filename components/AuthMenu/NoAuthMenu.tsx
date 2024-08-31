@@ -10,12 +10,16 @@ import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 
 function NoAuthMenu() {
     return (
-        <>
+        <div className="flex items-center space-x-4">
             <div className="dropdown dropdown-end">
                 <IpadCursorBlockWrapper>
-                    <button className="btn btn-square btn-ghost btn-sm sm:btn-md rounded-md btn-sm">
+                    <div
+                        tabIndex={0}
+                        role="button"
+                        className="btn btn-square btn-ghost btn-sm sm:btn-md rounded-md "
+                    >
                         <IconUser size={20} />
-                    </button>
+                    </div>
                 </IpadCursorBlockWrapper>
 
                 <div
@@ -47,7 +51,7 @@ function NoAuthMenu() {
                     </IpadCursorBlockWrapper>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 
