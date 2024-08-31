@@ -20,16 +20,17 @@ export interface StoreProps {
     // STATES
     columns: Record<string, GroupedItem>;
     boards: Board[];
+    tickets: Ticket[];
     selectedBoardId: string;
     users: User[];
     cursorType: "Ipad" | "Pointer";
     isGlobalLoading: boolean;
     filters: Filter;
     loggedUser: UserProfile | null;
-    tickets: Ticket[];
 
     //Boards
-    loadAllBoards: () => Promise<any>;
+    loadBoards: () => Promise<any>;
+    loadDemoBoards: () => Promise<any>;
     loadTicketsFromBoard: (boardId: string) => Promise<any>;
     sendInvite: (email: string) => Promise<any>;
     createBoardAndAddMembers: (
@@ -52,7 +53,7 @@ export interface StoreProps {
     resetFilters: () => void;
 
     //Users
-    loadAllUsers: () => Promise<any>;
+    loadUsersFromBoard: (boardId: string) => Promise<any>;
     setLoggedUser: (user: UserProfile | null) => void;
 
     //Misc
@@ -62,6 +63,7 @@ export interface StoreProps {
     setColumnsStatic: (columns: Record<string, GroupedItem>) => void;
     setIsLoading: (isLoading: boolean) => void;
     setCursorType: (cursorType: "Ipad" | "Pointer") => void;
+    clearAfterSignOut: () => void;
 }
 
 export type TicketStore = ReturnType<typeof createTicketStore>;
@@ -141,10 +143,15 @@ export const createTicketStore = (initProps: InitialProps) => {
                     }));
                 },
 
-                setTickets: (tickets: Ticket[]) => {
+                clearAfterSignOut: () => {
                     set((state: StoreProps) => ({
                         ...state,
-                        tickets: tickets,
+                        tickets: [],
+                        users: [],
+                        boards: [],
+                        filters: {},
+                        selectedBoardId: "",
+                        loggedUser: null,
                     }));
                 },
 
@@ -170,9 +177,9 @@ export const createTicketStore = (initProps: InitialProps) => {
             {
                 name: "save-boards-and-cursor",
                 partialize: (state) => ({
-                    cursorType: state.cursorType,
-                    selectedBoardId: state.selectedBoardId,
                     columns: state.columns,
+                    selectedBoardId: state.selectedBoardId,
+                    cursorType: state.cursorType,
                 }),
             }
         )

@@ -257,7 +257,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                 <div className="fixed inset-0 bg-black bg-opacity-90 z-[9999] text-base-content overflow-y-auto">
                     <div className="flex min-h-full p-3 md:p-0 justify-center items-center">
                         <div className="w-full sm:w-3/4 max-w-[1280px] bg-base-300 rounded-md p-4 sm:p-8 flex flex-col my-4">
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between ">
                                 <IpadCursorBlockWrapper type="text">
                                     <div className="flex gap-4 items-center">
                                         <IconStack2 size={30} />
@@ -289,8 +289,8 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                             {!isDeleteOpen ? (
                                 <>
                                     <div className="flex flex-col gap-4 py-4">
-                                        <div className="flex flex-col sm:flex-row  gap-2 sm:gap-4">
-                                            <div className="flex items-center gap-2">
+                                        <div className="flex flex-col items-start sm:flex-row gap-2 sm:gap-4">
+                                            <div className="flex items-start gap-2">
                                                 <IconH1 size={30} />
                                                 <h3 className="sm:hidden font-bold text-xl">
                                                     Title
@@ -316,8 +316,8 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                             </IpadCursorBlockWrapper>
                                         </div>
 
-                                        <div className="flex flex-col sm:flex-row g gap-2 sm:gap-4 mt-2">
-                                            <div className="flex items-center gap-2">
+                                        <div className="flex flex-col items-start sm:flex-row gap-2 sm:gap-4 mt-2">
+                                            <div className="flex items-start gap-2">
                                                 <IconArticle size={30} />
                                                 <h3 className="sm:hidden font-bold text-xl">
                                                     Description
@@ -338,7 +338,7 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                     error={errors.description}
                                                     placeholder="Description"
                                                     disabled={isLoading}
-                                                    className="textarea textarea-bordered w-full text-lg"
+                                                    className="textarea textarea-bordered w-full text-lg "
                                                     rows={5}
                                                 />
                                             </IpadCursorBlockWrapper>

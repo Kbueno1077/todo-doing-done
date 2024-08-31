@@ -11,6 +11,13 @@ export const createTicketSlice = (set: Function, get: Function) => ({
     tickets: [],
 
     //   ACTIONS
+    setTickets: (tickets: Ticket[]) => {
+        set((state: StoreProps) => ({
+            ...state,
+            tickets: tickets,
+        }));
+    },
+
     createTicket: async (
         ticket: Ticket,
         selectedUsers: User[]
@@ -79,6 +86,7 @@ export const createTicketSlice = (set: Function, get: Function) => ({
                     p_update_ticket: ticket.isUpdateNeeded,
                     p_user_ids: users.selectedUsers.map((user) => user.id),
                     p_update_users: users.isUpdateNeeded,
+                    p_author_id: get().loggedUser.id ?? "",
                     p_comment: comment || null,
                 }
             );

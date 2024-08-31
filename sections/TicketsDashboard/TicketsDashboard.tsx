@@ -5,18 +5,10 @@ import { useStoreContext } from "@/store/useStoreContext";
 import { StoreProps } from "@/store/zustand";
 import { Ticket } from "@/utils/types";
 import { deepClone } from "@/utils/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 
 function TicketsDashboard() {
-    const queryClient = useQueryClient();
-    const [isLoading, setIsLoading] = useState(true);
-
     const {
-        loadAllUsers,
-        loadTicketsFromBoard,
-        loadAllBoards,
         columns,
         setColumns,
         moveTicket,
@@ -28,48 +20,14 @@ function TicketsDashboard() {
             columns: s.columns,
             setColumns: s.setColumns,
             loadTicketsFromBoard: s.loadTicketsFromBoard,
-            loadAllUsers: s.loadAllUsers,
-            loadAllBoards: s.loadAllBoards,
+            loadUsersFromBoard: s.loadUsersFromBoard,
+            loadBoards: s.loadBoards,
+            loadDemoBoards: s.loadDemoBoards,
             moveTicket: s.moveTicket,
             isGlobalLoading: s.isGlobalLoading,
             tickets: s.tickets,
             setTickets: s.setTickets,
         };
-    });
-
-    const fetchData = async () => {
-        setIsLoading(true);
-
-        const boards = await loadAllBoards();
-        const users = await loadAllUsers();
-
-        const localStorageBoardId = localStorage.getItem(
-            "save-boards-and-cursor"
-        );
-        const selectedBoardId = JSON.parse(localStorageBoardId ?? "{}").state
-            .selectedBoardId;
-
-        const groupedData = await loadTicketsFromBoard(
-            selectedBoardId ? selectedBoardId : boards[0].id
-        );
-
-        setIsLoading(false);
-    };
-
-    // Queries
-    const query = useQuery({
-        queryKey: ["todos"],
-        queryFn: fetchData,
-        refetchOnWindowFocus: false,
-    });
-
-    // Mutations
-    const mutation = useMutation({
-        mutationFn: fetchData,
-        onSuccess: () => {
-            // Invalidate and refetch
-            queryClient.invalidateQueries({ queryKey: ["todos"] });
-        },
     });
 
     const onDragEnd = ({ source, destination }: DropResult) => {
@@ -179,7 +137,7 @@ function TicketsDashboard() {
                     flexGrow: 1,
                 }}
             >
-                {isLoading || isGlobalLoading ? (
+                {isGlobalLoading ? (
                     <>
                         {Object.values(columns).map((col) => (
                             <div

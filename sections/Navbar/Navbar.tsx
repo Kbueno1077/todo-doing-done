@@ -10,18 +10,22 @@ import AuthMenu from "@/components/AuthMenu/AuthMenu";
 import NoAuthMenu from "@/components/AuthMenu/NoAuthMenu";
 import BoardSettings from "@/modules/BoardSettings/BoardSettings";
 import Filters from "@/modules/Filters/Filters";
-import { UserProfile } from "@/utils/types";
+import { Board, UserProfile } from "@/utils/types";
+import { isMobileOrTablet, showToast } from "@/utils/utils";
 import {
     IconAlignJustified,
     IconInnerShadowBottomRight,
     IconPointer,
 } from "@tabler/icons-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
-import { isMobileOrTablet } from "@/utils/utils";
 
 function Navbar({ user }: { user: UserProfile | null }) {
     const router = usePathname();
+    const queryClient = useQueryClient();
+
+    const isDasboardOrDemo = router === "/demo" || router === "/dashboard";
+    const isDemo = router === "/demo";
 
     const {
         selectedBoardId,
@@ -32,6 +36,8 @@ function Navbar({ user }: { user: UserProfile | null }) {
         isGlobalLoading,
         setLoggedUser,
         loggedUser,
+        loadDemoBoards,
+        loadBoards,
     } = useStoreContext((s) => {
         return {
             selectedBoardId: s.selectedBoardId,
@@ -42,12 +48,54 @@ function Navbar({ user }: { user: UserProfile | null }) {
             isGlobalLoading: s.isGlobalLoading,
             setLoggedUser: s.setLoggedUser,
             loggedUser: s.loggedUser,
+            loadDemoBoards: s.loadDemoBoards,
+            loadBoards: s.loadBoards,
         };
     });
 
-    useEffect(() => {
+    const fetchData = async (user: UserProfile | null) => {
         setLoggedUser(user);
-    }, [user]);
+        let boards: Board[] = [];
+
+        if (!user || isDemo) {
+            boards = await loadDemoBoards();
+        } else {
+            boards = await loadBoards();
+            if (boards.length === 0) {
+                showToast(
+                    "Please create your first board or wait for and invitation from some other member",
+                    "info"
+                );
+                return;
+            }
+        }
+
+        const localStorageBoardId = localStorage.getItem(
+            "save-boards-and-cursor"
+        );
+        const selectedBoardId = JSON.parse(localStorageBoardId ?? "{}").state
+            .selectedBoardId;
+
+        const groupedData = await loadTicketsFromBoard(
+            selectedBoardId ? selectedBoardId : boards[0]?.id
+        );
+    };
+
+    // Queries
+    const query = useQuery({
+        queryKey: ["todos", user],
+        queryFn: () => fetchData(user),
+        refetchOnWindowFocus: false,
+    });
+
+    // Mutations
+    const mutation = useMutation({
+        mutationFn: fetchData,
+        onSuccess: () => {
+            // Invalidate and refetch
+            queryClient.invalidateQueries({ queryKey: ["todos"] });
+        },
+    });
 
     const changeBoard = async (boardId: string) => {
         if (boardId !== selectedBoardId) {
@@ -70,8 +118,6 @@ function Navbar({ user }: { user: UserProfile | null }) {
         setCursorType("Pointer");
     };
 
-    const isDasboardOrDemo = router === "/demo" || router === "/dashboard";
-
     return (
         <div className="navbar bg-transparent w-full" style={{ zIndex: 1100 }}>
             {isDasboardOrDemo && (
@@ -79,17 +125,20 @@ function Navbar({ user }: { user: UserProfile | null }) {
                     <div className="dropdown navbar-center cursor-none">
                         <IpadCursorBlockWrapper>
                             <div className="flex items-center">
-                                <div
-                                    tabIndex={0}
-                                    role="button"
-                                    className="hidden sm:block btn btn-ghost text-xl pt-2"
-                                >
-                                    {selectedBoardId && !isGlobalLoading
-                                        ? boards.find(
-                                              (b) => b.id === selectedBoardId
-                                          )?.name
-                                        : "Loading..."}
-                                </div>
+                                {boards.length > 0 && (
+                                    <div
+                                        tabIndex={0}
+                                        role="button"
+                                        className="hidden sm:block btn btn-ghost text-xl pt-2"
+                                    >
+                                        {selectedBoardId && !isGlobalLoading
+                                            ? boards.find(
+                                                  (b) =>
+                                                      b.id === selectedBoardId
+                                              )?.name
+                                            : "Loading..."}
+                                    </div>
+                                )}
 
                                 <div
                                     tabIndex={0}
