@@ -3,11 +3,17 @@
 import Column from "@/components/Column/Column";
 import { useStoreContext } from "@/store/useStoreContext";
 import { StoreProps } from "@/store/zustand";
-import { Ticket } from "@/utils/types";
-import { deepClone } from "@/utils/utils";
+import { Board, Ticket, UserProfile } from "@/utils/types";
+import { deepClone, showToast } from "@/utils/utils";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { usePathname } from "next/navigation";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 
 function TicketsDashboard() {
+    const queryClient = useQueryClient();
+    const router = usePathname();
+    const isDemo = router === "/demo";
+
     const {
         columns,
         setColumns,
@@ -15,6 +21,10 @@ function TicketsDashboard() {
         isGlobalLoading,
         tickets,
         setTickets,
+        loadBoards,
+        loadDemoBoards,
+        loggedUser,
+        loadTicketsFromBoard,
     } = useStoreContext((s) => {
         return {
             columns: s.columns,
@@ -27,7 +37,56 @@ function TicketsDashboard() {
             isGlobalLoading: s.isGlobalLoading,
             tickets: s.tickets,
             setTickets: s.setTickets,
+            loggedUser: s.loggedUser,
         };
+    });
+
+    const fetchData = async (user: UserProfile | null) => {
+        let boards: Board[] = [];
+
+        console.log("🚀 ~ fetchData ~ boards:", user);
+        if (!user || isDemo) {
+            boards = await loadDemoBoards();
+        } else {
+            boards = await loadBoards();
+            if (boards.length === 0) {
+                showToast(
+                    "Please create your first board or wait for and invitation from some other member",
+                    "info"
+                );
+                return boards;
+            }
+        }
+
+        const localStorageBoardId = localStorage.getItem(
+            "save-boards-and-cursor"
+        );
+        const selectedBoardId = JSON.parse(localStorageBoardId ?? "{}").state
+            .selectedBoardId;
+
+        const groupedData = await loadTicketsFromBoard(
+            selectedBoardId ? selectedBoardId : boards[0]?.id
+        );
+
+        return boards;
+    };
+
+    // Queries
+    const query = useQuery({
+        queryKey: ["todos", loggedUser?.id ?? "Demo"],
+        queryFn: () => fetchData(loggedUser),
+        refetchOnWindowFocus: false,
+    });
+
+    // Mutations
+    const mutation = useMutation({
+        mutationFn: fetchData,
+        onSuccess: () => {
+            // Invalidate and refetch
+            queryClient.invalidateQueries({
+                queryKey: ["todos", loggedUser?.id ?? "Demo"],
+            });
+        },
     });
 
     const onDragEnd = ({ source, destination }: DropResult) => {

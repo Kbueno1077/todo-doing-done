@@ -10,22 +10,22 @@ import AuthMenu from "@/components/AuthMenu/AuthMenu";
 import NoAuthMenu from "@/components/AuthMenu/NoAuthMenu";
 import BoardSettings from "@/modules/BoardSettings/BoardSettings";
 import Filters from "@/modules/Filters/Filters";
-import { Board, UserProfile } from "@/utils/types";
-import { isMobileOrTablet, showToast } from "@/utils/utils";
+import { UserProfile } from "@/utils/types";
+import { isMobileOrTablet } from "@/utils/utils";
 import {
     IconAlignJustified,
     IconInnerShadowBottomRight,
     IconPointer,
 } from "@tabler/icons-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 function Navbar({ user }: { user: UserProfile | null }) {
     const router = usePathname();
     const queryClient = useQueryClient();
 
     const isDasboardOrDemo = router === "/demo" || router === "/dashboard";
-    const isDemo = router === "/demo";
 
     const {
         selectedBoardId,
@@ -53,55 +53,34 @@ function Navbar({ user }: { user: UserProfile | null }) {
         };
     });
 
-    const fetchData = async (user: UserProfile | null) => {
-        setLoggedUser(user);
-        let boards: Board[] = [];
-
-        if (!user || isDemo) {
-            boards = await loadDemoBoards();
-        } else {
-            boards = await loadBoards();
-            if (boards.length === 0) {
-                showToast(
-                    "Please create your first board or wait for and invitation from some other member",
-                    "info"
-                );
-                return;
-            }
-        }
-
-        const localStorageBoardId = localStorage.getItem(
-            "save-boards-and-cursor"
-        );
-        const selectedBoardId = JSON.parse(localStorageBoardId ?? "{}").state
-            .selectedBoardId;
-
-        const groupedData = await loadTicketsFromBoard(
-            selectedBoardId ? selectedBoardId : boards[0]?.id
-        );
-    };
-
-    // Queries
-    const query = useQuery({
-        queryKey: ["todos", user],
-        queryFn: () => fetchData(user),
-        refetchOnWindowFocus: false,
-    });
-
-    // Mutations
-    const mutation = useMutation({
-        mutationFn: fetchData,
-        onSuccess: () => {
-            // Invalidate and refetch
-            queryClient.invalidateQueries({ queryKey: ["todos"] });
-        },
-    });
-
     const changeBoard = async (boardId: string) => {
         if (boardId !== selectedBoardId) {
             await loadTicketsFromBoard(boardId);
         }
     };
+
+    const fetchUser = async (user: UserProfile | null) => {
+        setLoggedUser(user);
+    };
+
+    const query = useQuery({
+        queryKey: [user?.id ?? "Demo"],
+        queryFn: () => fetchUser(user),
+        refetchOnWindowFocus: false,
+    });
+
+    // Mutations
+    const mutation = useMutation({
+        mutationFn: fetchUser,
+        onSuccess: () => {
+            // Invalidate and refetch
+            queryClient.invalidateQueries({ queryKey: [user?.id ?? "Demo"] });
+        },
+    });
+
+    useEffect(() => {
+        setLoggedUser(user);
+    }, [user]);
 
     const initPointer = () => {
         initCursor();
