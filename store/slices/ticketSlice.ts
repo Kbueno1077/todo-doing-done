@@ -45,15 +45,17 @@ export const createTicketSlice = (set: Function, get: Function) => ({
                 });
             });
 
-            const tickets = deepClone(get().tickets) as Ticket[];
-
+            const tickets = deepClone(get().tickets);
             tickets.push(data);
-            const groupedTickets = groupByStatus(tickets, get().columns);
+            const groupedTickets = groupByStatus(
+                tickets,
+                get().columnsFromBoard
+            );
 
             set((state: StoreProps) => ({
                 ...state,
                 tickets,
-                columns: { ...get().columns, ...groupedTickets },
+                columns: { ...get().columnsFromBoard, ...groupedTickets },
             }));
 
             return data;
@@ -86,7 +88,7 @@ export const createTicketSlice = (set: Function, get: Function) => ({
                     p_update_ticket: ticket.isUpdateNeeded,
                     p_user_ids: users.selectedUsers.map((user) => user.id),
                     p_update_users: users.isUpdateNeeded,
-                    p_author_id: get().loggedUser.id ?? "",
+                    p_author_id: get().loggedUser?.id || null,
                     p_comment: comment || null,
                 }
             );
@@ -97,7 +99,7 @@ export const createTicketSlice = (set: Function, get: Function) => ({
                 throw new Error("No board ID returned from the server");
             }
 
-            const tickets = deepClone(get().tickets) as Ticket[];
+            const tickets = deepClone(get().tickets);
             const index = tickets.findIndex(
                 (t: Ticket) => t.id === ticket.newTicket.id
             );
@@ -123,10 +125,7 @@ export const createTicketSlice = (set: Function, get: Function) => ({
                 tickets[index].AssignedToTickets = currentAssignedToTickets;
             }
 
-            const columns = deepClone(get().columns) as Record<
-                string,
-                GroupedItem
-            >;
+            const columns = deepClone(get().columns);
             const groupedTickets = groupByStatus(tickets, columns);
             set((state: StoreProps) => ({
                 ...state,
@@ -167,16 +166,17 @@ export const createTicketSlice = (set: Function, get: Function) => ({
                 throw new Error("No data returned from the update operation");
             }
 
-            const tickets = deepClone(get().tickets) as Ticket[];
+            const tickets = deepClone(get().tickets);
             const index = tickets.findIndex((t: Ticket) => t.id === ticketId);
 
             tickets.splice(index, 1);
 
-            const columns = deepClone(get().columns) as Record<
-                string,
-                GroupedItem
-            >;
-            const groupedTickets = groupByStatus(tickets, get().columns);
+            const columns = deepClone(get().columnsFromBoard);
+            const groupedTickets = groupByStatus(
+                tickets,
+                get().columnsFromBoard
+            );
+
             set((state: StoreProps) => ({
                 ...state,
                 tickets,

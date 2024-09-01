@@ -15,23 +15,21 @@ import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 function AuthMenu() {
     const router = useRouter();
 
-    const { loggedUser, setLoggedUser, clearAfterSignOut } = useStoreContext(
-        (s) => {
-            return {
-                loggedUser: s.loggedUser,
-                setLoggedUser: s.setLoggedUser,
-                clearAfterSignOut: s.clearAfterSignOut,
-            };
-        }
-    );
+    const { loggedUser, clearAfterSignOut } = useStoreContext((s) => {
+        return {
+            loggedUser: s.loggedUser,
+
+            clearAfterSignOut: s.clearAfterSignOut,
+        };
+    });
 
     const signOut = async () => {
         const supabase = createClient();
 
         await supabase.auth.signOut();
-        clearAfterSignOut();
+        router.replace("/");
 
-        return router.replace("/");
+        clearAfterSignOut();
     };
 
     if (!loggedUser) {

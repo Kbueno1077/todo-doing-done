@@ -60,8 +60,9 @@ export interface TicketList {
 }
 
 export interface GroupedItem {
-    id: string;
+    id?: string;
     list: Ticket[];
+    name: string;
     index: number;
 }
 

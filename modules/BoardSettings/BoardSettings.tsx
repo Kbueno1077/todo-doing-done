@@ -34,13 +34,15 @@ function BoardSettings() {
         Partial<Record<keyof CreateColumnFormData, string>>
     >({});
 
-    const { columns, setColumnsStatic, loggedUser } = useStoreContext((s) => {
-        return {
-            columns: s.columns,
-            setColumnsStatic: s.setColumnsStatic,
-            loggedUser: s.loggedUser,
-        };
-    });
+    const { columns, updateColumns, setColumnsStatic, loggedUser } =
+        useStoreContext((s) => {
+            return {
+                columns: s.columns,
+                updateColumns: s.updateColumns,
+                setColumnsStatic: s.setColumnsStatic,
+                loggedUser: s.loggedUser,
+            };
+        });
 
     const [columnsTemp, setColumnsTemp] = useState<any>({});
 
@@ -53,6 +55,7 @@ function BoardSettings() {
     function openModal() {
         document.addEventListener("keydown", handleKeyDown);
         document.body.classList.add("no-scroll");
+        setIsCreatingColumn(false);
 
         setColumnsTemp(deepClone(columns));
         setIsOpen(true);
@@ -61,7 +64,6 @@ function BoardSettings() {
     function closeModal() {
         document.removeEventListener("keydown", handleKeyDown);
         document.body.classList.remove("no-scroll");
-
         setIsOpen(false);
     }
 
@@ -87,6 +89,7 @@ function BoardSettings() {
     };
 
     const createColumnOn = () => {
+        setFormData({ columnName: "" });
         setIsCreatingColumn(true);
     };
 
@@ -127,17 +130,14 @@ function BoardSettings() {
         }
 
         const newColumn = {
-            id: formData.columnName,
+            name: formData.columnName,
             list: [],
             index: Object.values(columnsTemp).length,
         };
 
         setColumnsTemp((prevColumns: Record<string, GroupedItem>) => {
-            const newColumns = deepClone(prevColumns) as Record<
-                string,
-                GroupedItem
-            >;
-            newColumns[newColumn.id] = newColumn;
+            const newColumns = deepClone(prevColumns);
+            newColumns[newColumn.name] = newColumn;
             return newColumns;
         });
 
@@ -145,7 +145,7 @@ function BoardSettings() {
     };
 
     function updateIndices(propertyName: string, direction: string) {
-        const obj = deepClone(columnsTemp) as Record<string, GroupedItem>;
+        const obj = deepClone(columnsTemp);
 
         if (!obj.hasOwnProperty(propertyName)) {
             console.error(`Property "${propertyName}" not found.`);
@@ -184,22 +184,19 @@ function BoardSettings() {
         return obj;
     }
 
-    const removeColumn = (columnId: string) => {
-        const newColumns = deepClone(columnsTemp) as Record<
-            string,
-            GroupedItem
-        >;
+    const removeColumn = (columnName: string) => {
+        const newColumns = deepClone(columnsTemp);
 
         const firstColumn = Object.entries(newColumns).find(
-            (column) => column[1].index === 0
+            (column: any) => column[1].index === 0
         );
 
         if (firstColumn && firstColumn[0]) {
             newColumns[firstColumn[0]].list = [
                 ...newColumns[firstColumn[0]].list,
-                ...newColumns[columnId].list,
+                ...newColumns[columnName].list,
             ];
-            delete newColumns[columnId];
+            delete newColumns[columnName];
 
             setColumnsTemp(newColumns);
         }
@@ -207,6 +204,7 @@ function BoardSettings() {
 
     const handleSubmit = () => {
         setColumnsStatic(columnsTemp);
+        updateColumns(columnsTemp);
         closeModal();
     };
 
@@ -292,12 +290,12 @@ function BoardSettings() {
                                                                 }
                                                                 onClick={() =>
                                                                     removeColumn(
-                                                                        column.id
+                                                                        column.name
                                                                     )
                                                                 }
                                                                 className="w-full flex justify-center items-center"
                                                             >
-                                                                {column.id}{" "}
+                                                                {column.name}{" "}
                                                                 <IconBackspace
                                                                     className="text-error ml-2"
                                                                     size={24}

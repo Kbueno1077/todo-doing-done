@@ -1,42 +1,64 @@
-import { initialColumns } from "./../store/zustand";
+import { randomUUID } from "crypto";
 import { GroupedItem, Ticket } from "./types";
 
 export function groupByStatus(
     array: Ticket[] | null,
-    initialColumnsData: Record<string, GroupedItem> = initialColumns
+    initialColumnsData: Record<string, GroupedItem>
 ): Record<string, GroupedItem> {
     if (!array) return {};
+
+    const savedColumns = deepClone(initialColumnsData);
 
     let latestIndex = Math.max(
         ...Object.values(initialColumnsData).map((col) => col.index),
         -1
     );
 
-    return array.reduce((groups: Record<string, GroupedItem>, item: Ticket) => {
-        const status = item.status;
-        if (!groups[status]) {
-            if (initialColumnsData[status]) {
-                groups[status] = {
-                    id: status,
-                    list: [],
-                    index: initialColumnsData[status].index,
-                };
-            } else {
-                latestIndex++;
-                groups[status] = {
-                    id: status,
-                    list: [],
-                    index: latestIndex,
-                };
+    const columnsFromTickets = array.reduce(
+        (groups: Record<string, GroupedItem>, item: Ticket) => {
+            const status = item.status;
+            if (!groups[status]) {
+                if (initialColumnsData[status]) {
+                    groups[status] = {
+                        name: status,
+                        id: initialColumnsData[status].id,
+                        list: [],
+                        index: initialColumnsData[status].index,
+                    };
+                } else {
+                    latestIndex++;
+                    groups[status] = {
+                        id: status,
+                        name: status,
+                        list: [],
+                        index: latestIndex,
+                    };
+                }
             }
+            groups[status].list.push(item);
+            return groups;
+        },
+        {}
+    );
+
+    const savedGroupedColumns = deepClone(columnsFromTickets);
+
+    Object.keys(savedColumns).forEach((key) => {
+        if (!savedGroupedColumns[key]) {
+            savedGroupedColumns[key] = {
+                id: savedColumns[key].id,
+                name: key,
+                list: [],
+                index: savedColumns[key].index,
+            };
         }
-        groups[status].list.push(item);
-        return groups;
-    }, {});
+    });
+
+    return savedGroupedColumns;
 }
-export const deepClone = (originalObject: Object) => {
-    const deepCopy = structuredClone(originalObject);
-    return deepCopy;
+
+export const deepClone = <T>(originalObject: T): T => {
+    return structuredClone(originalObject) as T;
 };
 
 export function showToast(message: string, type = "") {

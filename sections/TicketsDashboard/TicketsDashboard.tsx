@@ -3,7 +3,7 @@
 import Column from "@/components/Column/Column";
 import { useStoreContext } from "@/store/useStoreContext";
 import { StoreProps } from "@/store/zustand";
-import { Board, Ticket, UserProfile } from "@/utils/types";
+import { Board, UserProfile } from "@/utils/types";
 import { deepClone, showToast } from "@/utils/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
@@ -13,6 +13,7 @@ function TicketsDashboard() {
     const queryClient = useQueryClient();
     const router = usePathname();
     const isDemo = router === "/demo";
+    const isDasboardOrDemo = router === "/demo" || router === "/dashboard";
 
     const {
         columns,
@@ -25,10 +26,12 @@ function TicketsDashboard() {
         loadDemoBoards,
         loggedUser,
         loadTicketsFromBoard,
+        loadColumnsFromBoard,
     } = useStoreContext((s) => {
         return {
             columns: s.columns,
             setColumns: s.setColumns,
+            loadColumnsFromBoard: s.loadColumnsFromBoard,
             loadTicketsFromBoard: s.loadTicketsFromBoard,
             loadUsersFromBoard: s.loadUsersFromBoard,
             loadBoards: s.loadBoards,
@@ -44,31 +47,37 @@ function TicketsDashboard() {
     const fetchData = async (user: UserProfile | null) => {
         let boards: Board[] = [];
 
-        console.log("🚀 ~ fetchData ~ boards:", user);
-        if (!user || isDemo) {
-            boards = await loadDemoBoards();
-        } else {
-            boards = await loadBoards();
-            if (boards.length === 0) {
-                showToast(
-                    "Please create your first board or wait for and invitation from some other member",
-                    "info"
-                );
-                return boards;
+        console.log("FEEETCH", router);
+        if (isDasboardOrDemo) {
+            if (!user || isDemo) {
+                boards = await loadDemoBoards();
+                await loadColumnsFromBoard();
+            } else {
+                boards = await loadBoards();
+                await loadColumnsFromBoard();
+
+                if (boards.length === 0) {
+                    showToast(
+                        "Please create your first board or wait for and invitation from some other member",
+                        "info"
+                    );
+                    return boards;
+                }
             }
+
+            const localStorageBoardId = localStorage.getItem(
+                "save-boards-and-cursor"
+            );
+            const selectedBoardId = JSON.parse(localStorageBoardId ?? "{}")
+                .state.selectedBoardId;
+
+            const groupedData = await loadTicketsFromBoard(
+                selectedBoardId ? selectedBoardId : boards[0]?.id
+            );
+
+            return { boards, groupedData };
         }
-
-        const localStorageBoardId = localStorage.getItem(
-            "save-boards-and-cursor"
-        );
-        const selectedBoardId = JSON.parse(localStorageBoardId ?? "{}").state
-            .selectedBoardId;
-
-        const groupedData = await loadTicketsFromBoard(
-            selectedBoardId ? selectedBoardId : boards[0]?.id
-        );
-
-        return boards;
+        return {};
     };
 
     // Queries
@@ -121,6 +130,7 @@ function TicketsDashboard() {
             // Then create a new copy of the column object
             const newCol = {
                 id: start.id,
+                name: start.name,
                 index: start.index,
                 list: newList,
             };
@@ -128,7 +138,7 @@ function TicketsDashboard() {
             // Update the state
             setColumns((state: StoreProps) => ({
                 ...state,
-                [newCol.id]: newCol,
+                [newCol.name]: newCol,
             }));
 
             return null;
@@ -142,6 +152,7 @@ function TicketsDashboard() {
             // Create a new start column
             const newStartCol = {
                 id: start.id,
+                name: start.name,
                 index: start.index,
                 list: newStartList,
             };
@@ -155,6 +166,7 @@ function TicketsDashboard() {
             // Create a new end column
             const newEndCol = {
                 id: end.id,
+                name: end.name,
                 index: end.index,
                 list: newEndList,
             };
@@ -162,7 +174,7 @@ function TicketsDashboard() {
             const movedTicket = columns[source.droppableId].list[source.index];
             const newStatus = destination.droppableId;
 
-            const updateTickets = deepClone(tickets) as Ticket[];
+            const updateTickets = deepClone(tickets);
             const updateTicketIndex = updateTickets.findIndex(
                 (t) => t.id === movedTicket.id
             );
@@ -172,8 +184,8 @@ function TicketsDashboard() {
             setTickets(updateTickets);
             setColumns((state: StoreProps) => ({
                 ...state,
-                [newStartCol.id]: newStartCol,
-                [newEndCol.id]: newEndCol,
+                [newStartCol.name]: newStartCol,
+                [newEndCol.name]: newEndCol,
             }));
 
             // Update in BD
@@ -212,6 +224,7 @@ function TicketsDashboard() {
                             <Column
                                 id={col.id}
                                 list={col.list}
+                                name={col.name}
                                 key={col.id + col.index}
                             />
                         ))

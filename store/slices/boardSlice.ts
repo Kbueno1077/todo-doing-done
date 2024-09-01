@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/client";
-import { deepClone, groupByStatus, showToast } from "@/utils/utils";
-import { initialColumns, StoreProps } from "../zustand";
 import { User } from "@/utils/types";
+import { deepClone, groupByStatus, showToast } from "@/utils/utils";
+import { StoreProps } from "../zustand";
 
 const supabase = createClient();
 
@@ -97,12 +97,12 @@ export const createBoardSlice = (set: Function, get: Function) => ({
         try {
             get().setIsLoading(true);
 
-            const initalColumnsInit = deepClone(initialColumns);
+            const columnsFromBoard = deepClone(get().columnsFromBoard);
 
             set((state: StoreProps) => ({
                 ...state,
                 tickets: [],
-                columns: initalColumnsInit,
+                columns: columnsFromBoard,
             }));
 
             await get().loadUsersFromBoard(boardId);
@@ -124,7 +124,7 @@ export const createBoardSlice = (set: Function, get: Function) => ({
             set((state: StoreProps) => ({
                 ...state,
                 tickets: data,
-                columns: { ...initalColumnsInit, ...groupedData },
+                columns: { ...columnsFromBoard, ...groupedData },
                 selectedBoardId: boardId,
             }));
 

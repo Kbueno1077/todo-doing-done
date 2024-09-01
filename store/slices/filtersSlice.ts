@@ -1,5 +1,5 @@
-import { AssignedToTickets, Filter, Ticket } from "@/utils/types";
-import { groupByStatus } from "@/utils/utils";
+import { AssignedToTickets, Filter, GroupedItem, Ticket } from "@/utils/types";
+import { deepClone, groupByStatus } from "@/utils/utils";
 import { StoreProps } from "../zustand";
 
 export const createFiltersSlice = (set: Function, get: Function) => ({
@@ -55,7 +55,7 @@ export const createFiltersSlice = (set: Function, get: Function) => ({
 
         set((state: StoreProps) => ({
             ...state,
-            columns: { ...get().columns, ...groupedData },
+            columns: { ...groupedData },
             filters,
         }));
     },

@@ -8,19 +8,20 @@ import { randomUUID } from "crypto";
 
 interface ColumnProps {
     id: string;
+    name: string;
     list: Ticket[] | never[];
 }
-const Column: React.FC<ColumnProps> = ({ id, list }) => {
+const Column: React.FC<ColumnProps> = ({ id, list, name }) => {
     return (
-        <Droppable droppableId={id}>
+        <Droppable droppableId={name}>
             {(provided) => (
                 <div className="flex flex-col">
                     <div className="flex justify-between items-center bg-primary text-primary-content rounded-md px-2 py-2 ">
                         <IpadCursorBlockWrapper type="text">
-                            <h2 className="uppercase font-bold">{id}</h2>
+                            <h2 className="uppercase font-bold">{name}</h2>
                         </IpadCursorBlockWrapper>
 
-                        <AddTicket status={id} />
+                        <AddTicket status={name} />
                     </div>
 
                     <div

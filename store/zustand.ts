@@ -15,18 +15,21 @@ import { createBoardSlice } from "./slices/boardSlice";
 import { createFiltersSlice } from "./slices/filtersSlice";
 import { createTicketSlice } from "./slices/ticketSlice";
 import { createUserSlice } from "./slices/userSlice";
+import { mockSlice } from "./slices/mockSlice";
+import { columnSlice } from "./slices/columnSlice";
 
 export interface StoreProps {
     // STATES
-    columns: Record<string, GroupedItem>;
     boards: Board[];
     tickets: Ticket[];
+    columns: Record<string, GroupedItem>;
+    columnsFromBoard: Record<string, GroupedItem>;
     selectedBoardId: string;
     users: User[];
+    loggedUser: UserProfile | null;
+    filters: Filter;
     cursorType: "Ipad" | "Pointer";
     isGlobalLoading: boolean;
-    filters: Filter;
-    loggedUser: UserProfile | null;
 
     //Boards
     loadBoards: () => Promise<any>;
@@ -39,6 +42,7 @@ export interface StoreProps {
     ) => Promise<any>;
 
     //Tickets
+    setTickets: (tickets: Ticket[]) => void;
     createTicket: (ticket: Ticket, selectedUsers: User[]) => Promise<any>;
     moveTicket: (ticketId: string, status: string) => Promise<any>;
     deleteTicket: (ticketid: string) => Promise<any>;
@@ -56,11 +60,13 @@ export interface StoreProps {
     loadUsersFromBoard: (boardId: string) => Promise<any>;
     setLoggedUser: (user: UserProfile | null) => void;
 
-    //Misc
-    //Type for Set Columns is different from the setColumnsStatic as setColumns is used when Drag and Drop
+    //Columns
+    loadColumnsFromBoard: () => void;
     setColumns: (columns: Function) => void;
-    setTickets: (tickets: Ticket[]) => void;
+    updateColumns: (columns: Record<string, GroupedItem>) => void;
     setColumnsStatic: (columns: Record<string, GroupedItem>) => void;
+
+    //Misc
     setIsLoading: (isLoading: boolean) => void;
     setCursorType: (cursorType: "Ipad" | "Pointer") => void;
     clearAfterSignOut: () => void;
@@ -69,28 +75,30 @@ export interface StoreProps {
 export type TicketStore = ReturnType<typeof createTicketStore>;
 
 type DefaultProps = {
-    columns: Record<string, GroupedItem>;
     cursorType: "Ipad" | "Pointer";
     isGlobalLoading: boolean;
 };
 type InitialProps = {};
 
 export const initialColumns: Record<string, GroupedItem> = {
-    Todo: { id: "Todo", list: [], index: 0 },
+    Todo: { id: "Todo", name: "Todo", list: [], index: 0 },
     Doing: {
         id: "Doing",
+        name: "Doing",
         list: [],
         index: 1,
     },
 
     QA: {
         id: "QA",
+        name: "QA",
         list: [],
         index: 2,
     },
 
     Done: {
         id: "Done",
+        name: "Done",
         list: [],
         index: 3,
     },
@@ -98,7 +106,6 @@ export const initialColumns: Record<string, GroupedItem> = {
 
 export const createTicketStore = (initProps: InitialProps) => {
     const DEFAULT_PROPS: DefaultProps = {
-        columns: initialColumns,
         isGlobalLoading: false,
         cursorType: isMobileOrTablet()
             ? "Pointer"
@@ -119,27 +126,14 @@ export const createTicketStore = (initProps: InitialProps) => {
                 ...createBoardSlice(set, get),
                 ...createUserSlice(set, get),
                 ...createFiltersSlice(set, get),
+                ...columnSlice(set, get),
+                ...mockSlice(set, get),
 
                 //   ACTIONS
                 setIsLoading: (isLoading: boolean) => {
                     set((state) => ({
                         ...state,
                         isGlobalLoading: isLoading,
-                    }));
-                },
-
-                // ONLY FOR MOVEMENT
-                setColumns: (columns) => {
-                    set((state: StoreProps) => ({
-                        ...state,
-                        columns: columns(state.columns),
-                    }));
-                },
-
-                setColumnsStatic: (columns) => {
-                    set((state: StoreProps) => ({
-                        ...state,
-                        columns,
                     }));
                 },
 
@@ -151,6 +145,8 @@ export const createTicketStore = (initProps: InitialProps) => {
                         boards: [],
                         filters: {},
                         selectedBoardId: "",
+                        columns: initialColumns,
+                        columnsFromBoard: {},
                         loggedUser: null,
                     }));
                 },
