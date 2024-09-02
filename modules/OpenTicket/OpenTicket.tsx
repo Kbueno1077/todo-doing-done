@@ -21,6 +21,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
 import { set, z } from "zod";
 import DeleteTicket from "./DeleteTicket";
+import { DEMO_USER_ID } from "@/utils/utils";
 
 interface AddTicketProps {
     ticket: Ticket;
@@ -152,15 +153,20 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
 
         const supabase = createClient();
 
-        //Load comments on this ticket
-        const { data } = await supabase
-            .from("Tickets")
-            .select("status, Comments(*, Users(*))")
-            .eq("id", ticket.id);
+        //Load comments on this ticket (for Demo they are already there)
+        if (!ticket.Comments || ticket.Comments.length === 0) {
+            const { data } = await supabase
+                .from("Tickets")
+                .select("status, Comments(*, Users(*))")
+                .eq("id", ticket.id);
 
-        if (data && data[0]) {
-            setComments(data[0].Comments || []);
-            setSelectedStatus(data[0].status);
+            if (data && data[0]) {
+                setComments(data[0].Comments || []);
+                setSelectedStatus(data[0].status);
+            }
+        } else {
+            setComments(ticket.Comments || []);
+            setSelectedStatus(ticket.status);
         }
 
         setIsLoadingComments(false);
@@ -542,9 +548,13 @@ function OpenTicket({ ticket, index }: AddTicketProps) {
                                                                 key={comment.id}
                                                                 className={`flex items-center chat chat-start ${
                                                                     loggedUser?.id ===
+                                                                        comment
+                                                                            .Users
+                                                                            .id ||
                                                                     comment
                                                                         .Users
-                                                                        .id
+                                                                        .id ===
+                                                                        DEMO_USER_ID
                                                                         ? "justify-end chat-end"
                                                                         : ""
                                                                 }`}

@@ -1,6 +1,11 @@
 import { createClient } from "@/utils/supabase/client";
 import { GroupedItem, User } from "@/utils/types";
-import { deepClone, groupByStatus, showToast } from "@/utils/utils";
+import {
+    deepClone,
+    groupByStatus,
+    IS_DEMO_ENV,
+    showToast,
+} from "@/utils/utils";
 import { StoreProps } from "../zustand";
 import { Ticket } from "./../../utils/types";
 
@@ -23,13 +28,13 @@ export const createTicketSlice = (set: Function, get: Function) => ({
         selectedUsers: User[]
     ): Promise<any | Error> => {
         try {
-            const { data, error } = await supabase.rpc(
-                "create_ticket_and_assign_users",
-                {
-                    ticket_data: ticket,
-                    p_user_ids: selectedUsers.map((user) => user.id),
-                }
-            );
+            const { data, error } =
+                IS_DEMO_ENV !== process.env.NEXT_PUBLIC_IS_DEMO
+                    ? await supabase.rpc("create_ticket_and_assign_users", {
+                          ticket_data: ticket,
+                          p_user_ids: selectedUsers.map((user) => user.id),
+                      })
+                    : get().mockCreateTicket(ticket, selectedUsers);
 
             if (error) throw error;
 
@@ -47,6 +52,7 @@ export const createTicketSlice = (set: Function, get: Function) => ({
 
             const tickets = deepClone(get().tickets);
             tickets.push(data);
+
             const groupedTickets = groupByStatus(
                 tickets,
                 get().columnsFromBoard
@@ -60,7 +66,6 @@ export const createTicketSlice = (set: Function, get: Function) => ({
 
             return data;
         } catch (error: any) {
-            console.error("Error creating ticket:", error);
             const errorMessage = error?.message
                 ? error?.message
                 : "An unexpected error occurred while creating the ticket";
@@ -81,17 +86,19 @@ export const createTicketSlice = (set: Function, get: Function) => ({
         comment?: string
     ): Promise<{ success: boolean } | Error> => {
         try {
-            const { data, error } = await supabase.rpc(
-                "update_ticket_and_assignments",
-                {
-                    p_ticket_data: ticket.newTicket,
-                    p_update_ticket: ticket.isUpdateNeeded,
-                    p_user_ids: users.selectedUsers.map((user) => user.id),
-                    p_update_users: users.isUpdateNeeded,
-                    p_author_id: get().loggedUser?.id || null,
-                    p_comment: comment || null,
-                }
-            );
+            const { data, error } =
+                IS_DEMO_ENV !== process.env.NEXT_PUBLIC_IS_DEMO
+                    ? await supabase.rpc("update_ticket_and_assignments", {
+                          p_ticket_data: ticket.newTicket,
+                          p_update_ticket: ticket.isUpdateNeeded,
+                          p_user_ids: users.selectedUsers.map(
+                              (user) => user.id
+                          ),
+                          p_update_users: users.isUpdateNeeded,
+                          p_author_id: get().loggedUser?.id || null,
+                          p_comment: comment || null,
+                      })
+                    : get().mockUpdateTicket(ticket, users, comment);
 
             if (error) throw error;
 
@@ -153,17 +160,22 @@ export const createTicketSlice = (set: Function, get: Function) => ({
 
     deleteTicket: async (ticketId: string): Promise<any | Error> => {
         try {
-            const { data, error } = await supabase
-                .from("Tickets")
-                .update({ isActive: false })
-                .eq("id", ticketId)
-                .select()
-                .single();
+            let supData = null;
+            if (IS_DEMO_ENV !== process.env.NEXT_PUBLIC_IS_DEMO) {
+                const { data: supData, error } = await supabase
+                    .from("Tickets")
+                    .update({ isActive: false })
+                    .eq("id", ticketId)
+                    .select()
+                    .single();
 
-            if (error) throw error;
+                if (error) throw error;
 
-            if (!data) {
-                throw new Error("No data returned from the update operation");
+                if (!supData) {
+                    throw new Error(
+                        "No data returned from the update operation"
+                    );
+                }
             }
 
             const tickets = deepClone(get().tickets);
@@ -184,10 +196,8 @@ export const createTicketSlice = (set: Function, get: Function) => ({
             }));
 
             showToast("Ticket deleted successfully", "success");
-            return { success: true, data };
+            return { success: true, data: supData ? supData : tickets[index] };
         } catch (error: any) {
-            console.error("Error updating ticket isActive status:", error);
-
             const errorMessage = error?.message
                 ? error?.message
                 : "An unexpected error occurred while deleting the ticket";

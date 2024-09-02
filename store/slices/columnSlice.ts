@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/client";
 import { GroupedItem } from "@/utils/types";
 import { initialColumns, StoreProps } from "../zustand";
-import { showToast } from "@/utils/utils";
+import { IS_DEMO_ENV, showToast } from "@/utils/utils";
 
 const supabase = createClient();
 
@@ -60,6 +60,10 @@ export const columnSlice = (set: Function, get: Function) => ({
 
     updateColumns: async (newColumns: Record<string, GroupedItem>) => {
         try {
+            if (IS_DEMO_ENV === process.env.NEXT_PUBLIC_IS_DEMO) {
+                return;
+            }
+
             const columns = Object.values(newColumns).map((item) => {
                 return {
                     id: item.id !== item.name ? item.id : null,

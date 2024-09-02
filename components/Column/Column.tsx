@@ -5,6 +5,7 @@ import React, { Fragment } from "react";
 import { Droppable } from "react-beautiful-dnd";
 import IpadCursorBlockWrapper from "../IpadCursorWrapper/IpadCursorWrapper";
 import { randomUUID } from "crypto";
+import { uuid } from "uuidv4";
 
 interface ColumnProps {
     id: string;
@@ -30,10 +31,10 @@ const Column: React.FC<ColumnProps> = ({ id, list, name }) => {
                         ref={provided.innerRef}
                     >
                         {list.map((ticket, index) => (
-                            <Fragment key={ticket.id || randomUUID()}>
+                            <Fragment key={ticket.id + ticket.status || uuid()}>
                                 {ticket.id && (
                                     <OpenTicket
-                                        key={ticket.id}
+                                        key={ticket.id + ticket.status}
                                         ticket={ticket}
                                         index={index}
                                     />

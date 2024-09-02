@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/client";
 import { UserProfile } from "@/utils/types";
-import { showToast } from "@/utils/utils";
+import { IS_DEMO_ENV, showToast } from "@/utils/utils";
 import { StoreProps } from "../zustand";
 
 const supabase = createClient();
@@ -47,6 +47,14 @@ export const createUserSlice = (set: Function, get: Function) => ({
 
     sendInvite: async (email: string): Promise<any | Error> => {
         try {
+            if (IS_DEMO_ENV === process.env.NEXT_PUBLIC_IS_DEMO) {
+                showToast(
+                    "Inviting users is not available in the demo",
+                    "error"
+                );
+                return;
+            }
+
             // Check if the user is already registered
             const getAllUsersResponse = await fetch("/api/getUserByEmail", {
                 method: "POST",

@@ -4,7 +4,7 @@ import Column from "@/components/Column/Column";
 import { useStoreContext } from "@/store/useStoreContext";
 import { StoreProps } from "@/store/zustand";
 import { Board, UserProfile } from "@/utils/types";
-import { deepClone, showToast } from "@/utils/utils";
+import { deepClone, IS_DEMO_ENV, showToast } from "@/utils/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
@@ -47,7 +47,6 @@ function TicketsDashboard() {
     const fetchData = async (user: UserProfile | null) => {
         let boards: Board[] = [];
 
-        console.log("FEEETCH", router);
         if (isDasboardOrDemo) {
             if (!user || isDemo) {
                 boards = await loadDemoBoards();
@@ -161,6 +160,7 @@ function TicketsDashboard() {
             const newEndList = end.list;
 
             // Insert the item into the end list
+            start.list[source.index].status = destination.droppableId;
             newEndList.splice(destination.index, 0, start.list[source.index]);
 
             // Create a new end column
@@ -172,12 +172,14 @@ function TicketsDashboard() {
             };
 
             const movedTicket = columns[source.droppableId].list[source.index];
+            console.log("🚀 ~ onDragEnd ~ movedTicket:", movedTicket);
             const newStatus = destination.droppableId;
 
             const updateTickets = deepClone(tickets);
             const updateTicketIndex = updateTickets.findIndex(
                 (t) => t.id === movedTicket.id
             );
+
             updateTickets[updateTicketIndex].status = newStatus;
 
             // Update the state
@@ -189,7 +191,9 @@ function TicketsDashboard() {
             }));
 
             // Update in BD
-            moveTicket(movedTicket.id ?? "", newStatus);
+            if (IS_DEMO_ENV !== process.env.NEXT_PUBLIC_IS_DEMO) {
+                moveTicket(movedTicket.id ?? "", newStatus);
+            }
 
             return null;
         }

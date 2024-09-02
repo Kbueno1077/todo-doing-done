@@ -1,5 +1,7 @@
-import { randomUUID } from "crypto";
 import { GroupedItem, Ticket } from "./types";
+
+export const DEMO_USER_ID = "DEMO-ID-USER";
+export const IS_DEMO_ENV = "IS_DEMO_TRUE";
 
 export function groupByStatus(
     array: Ticket[] | null,

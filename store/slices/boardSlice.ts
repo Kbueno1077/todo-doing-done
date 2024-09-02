@@ -1,6 +1,11 @@
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@/utils/types";
-import { deepClone, groupByStatus, showToast } from "@/utils/utils";
+import {
+    deepClone,
+    groupByStatus,
+    IS_DEMO_ENV,
+    showToast,
+} from "@/utils/utils";
 import { StoreProps } from "../zustand";
 
 const supabase = createClient();
@@ -149,6 +154,14 @@ export const createBoardSlice = (set: Function, get: Function) => ({
         selectedUsers: User[]
     ): Promise<any | Error> => {
         try {
+            if (IS_DEMO_ENV === process.env.NEXT_PUBLIC_IS_DEMO) {
+                showToast(
+                    "Creating board and adding members is not available in the demo",
+                    "error"
+                );
+                return;
+            }
+
             get().setIsLoading(true);
             const { data, error } = await supabase.rpc(
                 "create_board_and_add_members",
