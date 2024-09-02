@@ -19,34 +19,16 @@ export const metadata: Metadata = {
         title: "Todo-Doing-Done, Project Management Board",
         description:
             "Manage your projects efficiently with our tool, featuring boards and tickets.",
-        url: "https://kbueno-studios.com",
+        url: "https://todo-doing-done.kbueno-studio.com/",
         type: "website",
-        images: [
-            {
-                url: "https://kbueno-studios.com/og-image.jpg",
-                width: 800,
-                height: 600,
-                alt: "Project Management Board",
-            },
-        ],
-    },
-    twitter: {
-        card: "summary_large_image",
-        site: "@yourtwitterhandle",
-        title: "Project Management Board",
-        description:
-            "Manage your projects efficiently with our tool, featuring boards and tickets.",
-        // image: "https://kbueno-studios.com/twitter-image.jpg",
     },
 };
 
-// export const viewport: Viewport = {
-//     initialScale: 1,
-//     maximumScale: 1,
-//     width: "device-width",
-//     viewportFit: "cover",
-//     userScalable: false,
-// };
+export const viewport: Viewport = {
+    initialScale: 1,
+    maximumScale: 1,
+    width: "device-width",
+};
 
 export default async function RootLayout({
     children,
