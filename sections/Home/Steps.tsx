@@ -67,13 +67,16 @@ function Steps() {
                     </div>
 
                     <div className="flex justify-center">
-                        {/* <img
-                            alt="TaskFlow Board"
-                            className="rounded-box object-cover object-center"
-                            height="310"
-                            src="/placeholder.svg?height=310&width=550"
-                            width="550"
-                        /> */}
+                        <IpadCursorBlockWrapper>
+                            <a href="/schema_video.mp4" target="_blank">
+                                <video
+                                    className="rounded-box object-cover object-center"
+                                    height="280"
+                                    src="/schema_video.mp4"
+                                    width="600"
+                                />
+                            </a>
+                        </IpadCursorBlockWrapper>
                     </div>
                 </div>
             </div>
