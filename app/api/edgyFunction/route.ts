@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export const runtime = "edge";
 
-export default async function POST() {
+export async function POST() {
     // Initialize Supabase client
     const supabase = createClient();
 
