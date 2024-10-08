@@ -1,9 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
-export const config = {
-    runtime: "edge",
-};
+export const runtime = "edge";
 
 export default async function POST() {
     // Initialize Supabase client
