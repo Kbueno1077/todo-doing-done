@@ -1,0 +1,13 @@
+name: Schedule Daily Operation
+
+on:
+    schedule:
+        - cron: "0 2 * * *" # Runs at 2:00 AM UTC every day
+
+jobs:
+    trigger_daily_operation:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Trigger Vercel Edge Function
+              run: |
+                  curl -X GET "https://your-vercel-deployment-url.vercel.app/api/daily-operation"
