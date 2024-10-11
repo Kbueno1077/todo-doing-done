@@ -4,19 +4,21 @@ import { NextResponse } from "next/server";
 export const runtime = "edge";
 
 export async function GET(request: Request) {
+    // Initialize Supabase client
     const supabase = createClient();
 
     try {
+        // Perform your daily operation here
         const { data, error } = await supabase
             .from("Tickets")
-            .update({ description: "Map Description 1" })
-            .eq("id", "b2755a5b-a90e-4211-b791-b2c59fb7b982")
+            .update({ status: "Todo" })
+            .eq("id", "1acca881-0a73-4889-9555-06ee02e2d61b")
             .select();
 
         const { data: data2, error: error2 } = await supabase
             .from("Tickets")
-            .update({ description: "Map Description" })
-            .eq("id", "b2755a5b-a90e-4211-b791-b2c59fb7b982")
+            .update({ status: "Done" })
+            .eq("id", "1acca881-0a73-4889-9555-06ee02e2d61b")
             .select();
 
         if (error) throw error;
