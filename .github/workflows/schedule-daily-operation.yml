@@ -10,4 +10,4 @@ jobs:
         steps:
             - name: Trigger Vercel Edge Function
               run: |
-                  curl -X GET "https://grand-line.kbueno-studio.com/api/edgyFunction"
+                  curl -X GET "https://todo-doing-done.kbueno-studio.com/api/edgyFunction"
