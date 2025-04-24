@@ -7,6 +7,7 @@ import {
   showToast,
 } from "@/utils/utils";
 import { StoreProps } from "../zustand";
+import { demoBoards } from "@/mock/demoBoards";
 
 const supabase = createClient();
 
@@ -20,26 +21,13 @@ export const createBoardSlice = (set: Function, get: Function) => ({
     try {
       get().setIsLoading(true);
 
-      const { data, error } = await supabase
-        .from("Boards")
-        .select("*, BoardMembership(*, Users(*))")
-        .or(
-          "id.eq.d04aeafb-728a-4e31-8187-b895e6cda905,id.eq.ea21517a-c745-4e84-844e-e8257cb6750b"
-        );
-
-      if (error) throw error;
-
-      if (!data) {
-        throw new Error("No board ID returned from the server");
-      }
-
       set((state: StoreProps) => ({
         ...state,
-        boards: data || [],
+        boards: demoBoards || [],
       }));
 
       get().setIsLoading(false);
-      return data;
+      return demoBoards;
     } catch (error: any) {
       console.error("Error loading boards:", error);
       const errorMessage = error?.message
@@ -53,6 +41,7 @@ export const createBoardSlice = (set: Function, get: Function) => ({
         : new Error("An unknown error occurred");
     }
   },
+
   loadBoards: async () => {
     try {
       get().setIsLoading(true);
