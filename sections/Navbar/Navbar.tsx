@@ -30,10 +30,7 @@ function Navbar() {
     cursorType,
     setCursorType,
     isGlobalLoading,
-    setLoggedUser,
     loggedUser,
-    loadDemoBoards,
-    loadBoards,
   } = useStoreContext((s) => {
     return {
       selectedBoardId: s.selectedBoardId,
@@ -42,10 +39,7 @@ function Navbar() {
       loadTicketsFromBoard: s.loadTicketsFromBoard,
       setCursorType: s.setCursorType,
       isGlobalLoading: s.isGlobalLoading,
-      setLoggedUser: s.setLoggedUser,
       loggedUser: s.loggedUser,
-      loadDemoBoards: s.loadDemoBoards,
-      loadBoards: s.loadBoards,
     };
   });
 
@@ -128,6 +122,7 @@ function Navbar() {
           </div>
         </div>
       )}
+
       <div className="navbar-end w-full sm:mr-4 gap-2">
         {isDasboardOrDemo && <Filters />}
 
