@@ -74,8 +74,6 @@ export const columnSlice = (set: Function, get: Function) => ({
 
       const boardId = get().selectedBoardId;
 
-      //   if (error) throw error;
-
       if (!mockedDemoData) {
         throw new Error("No board ID returned from the server");
       }

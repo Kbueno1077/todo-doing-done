@@ -1,3 +1,5 @@
+import { demoBoards } from "@/mock/demoBoards";
+import { mockTickets } from "@/mock/demoTickets";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@/utils/types";
 import {
@@ -7,7 +9,6 @@ import {
   showToast,
 } from "@/utils/utils";
 import { StoreProps } from "../zustand";
-import { demoBoards } from "@/mock/demoBoards";
 
 const supabase = createClient();
 
@@ -16,7 +17,7 @@ export const createBoardSlice = (set: Function, get: Function) => ({
   selectedBoardId: "",
   boards: [],
 
-  //   ACTIONS
+  // ACTIONS
   loadDemoBoards: async () => {
     try {
       get().setIsLoading(true);
@@ -101,17 +102,7 @@ export const createBoardSlice = (set: Function, get: Function) => ({
 
       await get().loadUsersFromBoard(boardId);
 
-      const { data, error } = await supabase
-        .from("Tickets")
-        .select("*, AssignedToTickets(*, Users(*))")
-        .eq("board_id", boardId)
-        .eq("isActive", true);
-
-      if (error) throw error;
-
-      if (!data) {
-        throw new Error("No board ID returned from the server");
-      }
+      const data = mockTickets.filter((ticket) => ticket.board_id === boardId);
 
       const groupedData = groupByStatus(data, get().columns);
 

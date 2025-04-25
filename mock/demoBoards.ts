@@ -1,30 +1,8 @@
 export const demoBoards = [
   {
-    created_at: "2024-08-15T21:43:21.265427+00:00",
-    updated_at: "2024-08-15T21:43:21.265427+00:00",
-    name: "Demo Board",
-    id: "d04aeafb-728a-4e31-8187-b895e6cda905",
-    BoardMembership: [
-      {
-        id: "4e516e73-d0be-4931-a028-da7d6af39367",
-        Users: {
-          id: "f70e24e7-438b-42ae-8458-14e8e058dd9a",
-          img: "https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/user-pictures/kbueno.jpg",
-          name: "Kevin Bueno",
-          created_at: "2024-08-08T23:12:44.942386+00:00",
-          updated_at: "2024-08-08T23:12:44.942386+00:00",
-        },
-        user_id: "f70e24e7-438b-42ae-8458-14e8e058dd9a",
-        board_id: "d04aeafb-728a-4e31-8187-b895e6cda905",
-        created_at: "2024-08-31T12:53:15.511611+00:00",
-        updated_at: "2024-08-31T12:53:15.511611+00:00",
-      },
-    ],
-  },
-  {
     created_at: "2024-08-09T20:30:48.081256+00:00",
     updated_at: "2024-08-09T20:30:48.081256+00:00",
-    name: "Example 2nd Board",
+    name: "Example Board",
     id: "ea21517a-c745-4e84-844e-e8257cb6750b",
     BoardMembership: [
       {
@@ -68,6 +46,29 @@ export const demoBoards = [
         board_id: "ea21517a-c745-4e84-844e-e8257cb6750b",
         created_at: "2024-08-31T13:10:24.283977+00:00",
         updated_at: "2024-08-31T13:10:24.283977+00:00",
+      },
+    ],
+  },
+
+  {
+    created_at: "2024-08-15T21:43:21.265427+00:00",
+    updated_at: "2024-08-15T21:43:21.265427+00:00",
+    name: "Example Board 2",
+    id: "d04aeafb-728a-4e31-8187-b895e6cda905",
+    BoardMembership: [
+      {
+        id: "4e516e73-d0be-4931-a028-da7d6af39367",
+        Users: {
+          id: "f70e24e7-438b-42ae-8458-14e8e058dd9a",
+          img: "https://sxfpasuclnlqrljkmjdc.supabase.co/storage/v1/object/public/user-pictures/kbueno.jpg",
+          name: "Kevin Bueno",
+          created_at: "2024-08-08T23:12:44.942386+00:00",
+          updated_at: "2024-08-08T23:12:44.942386+00:00",
+        },
+        user_id: "f70e24e7-438b-42ae-8458-14e8e058dd9a",
+        board_id: "d04aeafb-728a-4e31-8187-b895e6cda905",
+        created_at: "2024-08-31T12:53:15.511611+00:00",
+        updated_at: "2024-08-31T12:53:15.511611+00:00",
       },
     ],
   },
