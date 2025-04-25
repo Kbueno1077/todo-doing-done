@@ -1,4 +1,5 @@
-"use client";
+export const dynamic = "force-dynamic";
+
 import TicketsDashboard from "@/sections/TicketsDashboard/TicketsDashboard";
 
 export default async function DemoPage() {

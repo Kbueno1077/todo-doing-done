@@ -1,6 +1,5 @@
 import Disclaimer from "./Disclaimer";
 import Features from "./Features";
-import FutureFeatures from "./FutureFeatures";
 import Hero from "./Hero";
 import Steps from "./Steps";
 
