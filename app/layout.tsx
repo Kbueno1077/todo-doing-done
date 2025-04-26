@@ -1,6 +1,5 @@
 import Footer from "@/sections/Footer/Footer";
 import Navbar from "@/sections/Navbar/Navbar";
-import { createClient } from "@/utils/supabase/server";
 import { GeistSans } from "geist/font/sans";
 import { Metadata, Viewport } from "next";
 import "./globals.css";
